@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>汇编语言入门一：环境准备</title>
+    <url>/2019/10/25/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%B8%80%EF%BC%9A%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87/</url>
+    <content><![CDATA[<p><a href="https://zhuanlan.zhihu.com/p/23618489" target="_blank" rel="noopener" title="原文链接">原文链接</a></p>
+<p>现阶段，找个方便好使的编程环境还是比较蛋疼的，对于部分想过瘾或者想从学习实践中学习的小伙伴来说，略显蛋疼。不过，仔细琢磨，还是能够自己折腾出一个好用的环境来的。开搞。</p>
+<a id="more"></a>
+
+<h3 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h3><p>Ubuntu</p>
+<p>gcc/nasm</p>
+<p>也就是说，你先安装一个能正常使用的Ubuntu再说吧，然后顺便熟悉一些相关的概念和操作。</p>
+<p>后面若没有特殊说明，那我们讨论的问题都是在这个软件环境下。</p>
+<h3 id="环境检查"><a href="#环境检查" class="headerlink" title="环境检查"></a>环境检查</h3><p>先打开终端，安装所需软件（注意$开头的才是命令，并且$并不属于命令的一部分）：</p>
+<figure class="highlight armasm"><table><tr><td class="code"><pre><span class="line">$ sudo apt-<span class="meta">get</span> install gcc nasm vim gcc-<span class="keyword">multilib </span>-y</span><br></pre></td></tr></table></figure>
+
+<p>在终端中分别执行which nasm和which gcc，得到如下结果，则表示环境已经安装完毕。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">which</span> nasm</span></span><br><span class="line">/usr/bin/nasm</span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">which</span> gcc</span></span><br><span class="line">/usr/bin/gcc</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="开始第一个程序"><a href="#开始第一个程序" class="headerlink" title="开始第一个程序"></a>开始第一个程序</h3><p>在汇编语言环境下，我们先别急着搞什么Hello World，在这里要打印出Hello World还不是一个简单的事情，这也算是初入汇编比较让人不解的地方，成天都在扯什么寄存器寻址啥的，说好的变量分支循环函数呢？</p>
+<p>别说话，先按照我的套路把环境配好，程序跑起来了再说。注意，不是Hello World。先亮出第一个程序的C语言等价代码：</p>
+<figure class="highlight angelscript"><table><tr><td class="code"><pre><span class="line"><span class="built_in">int</span> main() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>不好意思，大括号没换行。你以为接下来我要gcc -S吗？Too naive。我这可是正宗手工艺，非机械化生产。</p>
+<p>说正事，先一股脑啥都不知道地把代码敲完，跑起来再说：</p>
+<p>首先准备个文件，暂且叫做first.asm吧，然后把下面的代码搞进去：</p>
+<figure class="highlight x86asm"><table><tr><td class="code"><pre><span class="line"><span class="meta">global</span> main</span><br><span class="line"></span><br><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, <span class="number">0</span></span><br><span class="line">    <span class="keyword">ret</span></span><br></pre></td></tr></table></figure>
+
+
+<p>好了程序写完了，你能感受到这里的0就是上面C代码里的0，说明你有学习汇编的天赋。</p>
+<p>OK接下来就要编译运行了。来一堆命令先：</p>
+<figure class="highlight stylus"><table><tr><td class="code"><pre><span class="line">$ nasm -f elf first<span class="selector-class">.asm</span> -o first.o</span><br><span class="line">$ gcc -m32 first<span class="selector-class">.o</span> -o first</span><br></pre></td></tr></table></figure>
+
+
+<p>这下，程序就编译好了，像这样：</p>
+<figure class="highlight vim"><table><tr><td class="code"><pre><span class="line">$ <span class="keyword">ls</span></span><br><span class="line"><span class="keyword">first</span>  <span class="keyword">first</span>.asm  <span class="keyword">first</span>.<span class="keyword">o</span></span><br></pre></td></tr></table></figure>
+
+
+<p>好了我们运行一下：</p>
+<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>./first ; echo <span class="variable">$?</span></span><br></pre></td></tr></table></figure>
+
+
+<p>别问我为何上面的命令后面多了一串奇怪的代码，你自己把它删掉之后再看就能猜出来是干啥的了。如果还有疑惑，可以再次做实验确认，比如把代码里的0改成1。变成这样：</p>
+<figure class="highlight x86asm"><table><tr><td class="code"><pre><span class="line"><span class="meta">global</span> main</span><br><span class="line"></span><br><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">ret</span></span><br></pre></td></tr></table></figure>
+
+
+<p>再按照同样的套路来编译运行：</p>
+<figure class="highlight applescript"><table><tr><td class="code"><pre><span class="line">$ nasm -f elf <span class="keyword">first</span>.asm -o <span class="keyword">first</span>.o</span><br><span class="line">$ gcc -m32 <span class="keyword">first</span>.o -o <span class="keyword">first</span></span><br><span class="line">$ ./<span class="keyword">first</span> ; echo $?</span><br><span class="line"><span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+
+<p>OK，咱们的环境准备工作大功告成，后面再细说该怎么搞事情（心情好的话还有ARM版的哦，准备好ARM环境或者买个树莓派吧）。</p>
+<p>编辑于 2017-11-27</p>
+]]></content>
+      <categories>
+        <category>汇编语言</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>汇编语言入门二：环境有了先过把瘾</title>
+    <url>/2019/10/25/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%BA%8C%EF%BC%9A%E7%8E%AF%E5%A2%83%E6%9C%89%E4%BA%86%E5%85%88%E8%BF%87%E6%8A%8A%E7%98%BE/</url>
+    <content><![CDATA[<p><a href="https://zhuanlan.zhihu.com/p/23639191" target="_blank" rel="noopener" title="原文链接">原文链接</a></p>
+<p>上回说到，咱们把环境搭好了，可以开始玩耍汇编了。</p>
+<h3 id="寄存器是啥玩意儿？"><a href="#寄存器是啥玩意儿？" class="headerlink" title="寄存器是啥玩意儿？"></a>寄存器是啥玩意儿？</h3><p>开始学C的时候，有没有一种感觉，变量？类型？我可是要改变世界的男人，怎么就成天在跟i++较劲啊？这黑框程序还只能用来算数学，跟说好的不一样呢？？？想必后来，见得多了，你的想法也不那么幼稚了吧。</p>
+<a id="more"></a>
+
+<p>好了，接下来汇编也会给你同样一种感觉的。啥玩意儿？寄存器？寻址？说好的变量类型循环函数呢？。</p>
+<p>好了， 我想先刻意避开这些晦涩难懂的东西，找到感觉了，再回头来研究条条框框。在此先把基本的几个简单的东西弄熟练，过早引入太多概念容易让人头昏眼花。</p>
+<p>这里就说寄存器，通俗地来解释一下。回到上小学的时候，现在有一大堆计算题：</p>
+<figure class="highlight angelscript"><table><tr><td class="code"><pre><span class="line"><span class="number">99</span>+<span class="number">10</span>=</span><br><span class="line"><span class="number">32</span><span class="number">-20</span>=</span><br><span class="line"><span class="number">14</span>+<span class="number">21</span>=</span><br><span class="line"><span class="number">47</span><span class="number">-9</span>=</span><br><span class="line"><span class="number">87</span>+<span class="number">3</span>=</span><br><span class="line"><span class="number">86</span><span class="number">-8</span>=</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+
+<p>正常来讲，要算出这个么多题目，你需要一支笔，一边计算的同时一边把结果写下来。</p>
+<p>好了，到这里，我就来做个类比，助你大致理解寄存器是干啥用的。首先，我们把CPU和大脑做一个类比。</p>
+<p>你在纸上进行计算的时候，需要不断往纸上写下计算结果，一边在脑子里进行计算。大致过程就像：</p>
+<ol>
+<li>在纸上找一个题目，先看清两个数字，并迅速记下来</li>
+<li>在脑子里对这两个数字进行计算，计算出的结果也是记在脑子里的</li>
+<li>将计算结果写在纸上，继续做下一个题目<br>好了，这个过程就和计算机执行的过程有几分相似。草稿纸就相当于是个内存，脑子就是CPU。</li>
+</ol>
+<p>在计算的时候，你需要知道计算的两个数字，而且还得知道是做什么运算，这些信息都是从草稿纸上看见之后，短暂记忆在脑子里的。</p>
+<p>CPU在计算的时候也是一样，需要知道要计算的数据是什么，还得知道是做什么运算，这些信息也需要临时保存在CPU的某个地方。这个地方就是寄存器。</p>
+<p>好了到这里，不知道你有没有看明白？也就是说CPU里头的寄存器的作用，就像我们在做计算的时候会临时在脑子里记住数字一样。当然你的脑子能记住不止一个数据，CPU也不止一个寄存器。</p>
+<h3 id="为啥C语言里没有说这些？"><a href="#为啥C语言里没有说这些？" class="headerlink" title="为啥C语言里没有说这些？"></a>为啥C语言里没有说这些？</h3><p>就是因为写汇编语言的时候，要在有限的寄存器情况下，编写复杂的程序，还要考虑灵活性、性能、正确性等等乱七八糟的问题，对于程序员是一个超级大的负担。</p>
+<p>因此有人专门发明了许多更方便好用的“高级语言”，然后还专门写了个配套的程序能够把用这个“高级语言”写的东西翻译成汇编语言，再将汇编语言翻译成机器能执行的指令。其中之一就是C语言。也就是C语言发明出来就是奔着比汇编语言好用的目标去的。所以啊，相比汇编这种繁琐复杂的编程方式，高级语言不知道高级到哪里去了。</p>
+<h3 id="那学习汇编语言有用吗？"><a href="#那学习汇编语言有用吗？" class="headerlink" title="那学习汇编语言有用吗？"></a>那学习汇编语言有用吗？</h3><p>没有。</p>
+<h3 id="开始一顿乱写"><a href="#开始一顿乱写" class="headerlink" title="开始一顿乱写"></a>开始一顿乱写</h3><p>好了，先介绍个程序，运行完了能够开心一下：</p>
+<figure class="highlight x86asm"><table><tr><td class="code"><pre><span class="line"><span class="meta">global</span> main</span><br><span class="line"></span><br><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">ebx</span>, <span class="number">2</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="built_in">ebx</span></span><br><span class="line">    <span class="keyword">ret</span></span><br></pre></td></tr></table></figure>
+
+<p>老套路，保存成文件，比如叫做nmb.asm，然后编译运行：</p>
+<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>nasm -f elf nmb.asm -o nmb.o</span><br><span class="line"><span class="variable">$ </span>gcc -m32 nmb.o -o nmb</span><br><span class="line"><span class="variable">$ </span>./nmb ; echo <span class="variable">$?</span></span><br><span class="line"><span class="number">3</span></span><br></pre></td></tr></table></figure>
+
+<p>如果你能看出来这里面的端倪，说明你是一个聪明伶俐的天才。不就是做了个算术题1+2=3么。</p>
+<p>好了我们来看一下这个程序。里面的eax就是指代的寄存器。同理ebx也是一个寄存器。也就是这个CPU在做计算题的时候至少能够记住两个数字，实际上，它有更多寄存器，稍后再慢慢说。</p>
+<p>OK。既然找到一些感觉了，就继续胡乱地拍出一大堆程序来先玩个够吧：</p>
+<figure class="highlight x86asm"><table><tr><td class="code"><pre><span class="line"><span class="meta">global</span> main</span><br><span class="line"></span><br><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="number">2</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="number">3</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="number">4</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="number">5</span></span><br><span class="line">    <span class="keyword">ret</span></span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight x86asm"><table><tr><td class="code"><pre><span class="line"><span class="meta">global</span> main</span><br><span class="line"></span><br><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">ebx</span>, <span class="number">2</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">ecx</span>, <span class="number">3</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">edx</span>, <span class="number">4</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="built_in">ebx</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="built_in">ecx</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="built_in">edx</span></span><br><span class="line">    <span class="keyword">ret</span></span><br></pre></td></tr></table></figure>
+
+<p>至于这两个程序是什么结果，你自己玩吧。不动手练练怎么学得好。</p>
+<h3 id="指令"><a href="#指令" class="headerlink" title="指令"></a>指令</h3><p>指令就像是你发给CPU的一个个命令，你让它做啥它就做啥。当然了，前提是CPU得支持对应的功能，CPU是没有“吃饭”功能的，你也写不出让它”吃饭“的指令来。</p>
+<p>前面我们共用到了三个指令：分别是mov、add、ret。</p>
+<p>我来逐个解释这些指令：</p>
+<p>mov<br>数据传送指令，我们可以像下面这样用mov指令，达到数据传送的目的。</p>
+<figure class="highlight x86asm"><table><tr><td class="code"><pre><span class="line"><span class="keyword">mov</span> <span class="built_in">eax</span>, <span class="number">1</span>          <span class="comment">; 让eax的值为1（eax = 1）</span></span><br><span class="line"><span class="keyword">mov</span> <span class="built_in">ebx</span>, <span class="number">2</span>          <span class="comment">; 让ebx的值为2（ebx = 2）</span></span><br><span class="line"><span class="keyword">mov</span> <span class="built_in">ecx</span>, <span class="built_in">eax</span>        <span class="comment">; 把eax的值传送给ecx（ecx = eax）</span></span><br></pre></td></tr></table></figure>
+
+<p>add<br>加法指令</p>
+<figure class="highlight x86asm"><table><tr><td class="code"><pre><span class="line"><span class="keyword">add</span> <span class="built_in">eax</span>, <span class="number">2</span>          <span class="comment">; eax = eax + 2</span></span><br><span class="line"><span class="keyword">add</span> <span class="built_in">ebx</span>, <span class="built_in">eax</span>        <span class="comment">; ebx = ebx + eax</span></span><br></pre></td></tr></table></figure>
+
+<p>ret<br>返回指令，类似于C语言中的return，用于函数调用后的返回（后面细说）。</p>
+<h3 id="为啥指令长得这么丑？和我想的不一样？"><a href="#为啥指令长得这么丑？和我想的不一样？" class="headerlink" title="为啥指令长得这么丑？和我想的不一样？"></a>为啥指令长得这么丑？和我想的不一样？</h3><p>首先，CPU里是一坨电路，有的功能对于人来说可能很简单，但是对于想要用电路来实现这个功能的人来说，就不一定简单了。这是需要明白的第一个道理。</p>
+<p>所以啊，这长得丑是有原因的。其中一个原因就是，某些长的漂亮的功能用电路实现起来超级麻烦，所以干脆设计丑一点，反正到时候这些古怪的指令能够组合出我想要的功能，也就足够了。</p>
+<p>所以，汇编语言蛋疼就在这些地方：</p>
+<p>为了迁就电路的设计，很多指令不一定会按照朴素的思维方式去设计<br>需要知道CPU的工作原理，否则都不知道该怎么组织程序<br>程序复杂之后，连我自己都看不懂了，虽然能够运行得到正确的结果<br>…<br>按道理，随着技术的发展，指令应该越来越好看，越来越符合人的思考方式才对啊。然而，世事难料，自从出现了高级语言，多数编程场景下，已经不需要关心指令和寄存器到底长啥样了，这个事情已经由编译器代劳了，99%甚至更多的程序员不需关心寄存器和指令了。所以，长得不好看就算了，反正也没什么人看。</p>
+<p>好了，按照前面的介绍，接下来再继续了解一些东西：</p>
+<h3 id="更多指令、更多寄存器"><a href="#更多指令、更多寄存器" class="headerlink" title="更多指令、更多寄存器"></a>更多指令、更多寄存器</h3><p>sub<br>减法指令（用法和加法指令类似）</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">sub</span> <span class="title">eax</span>, 1              </span>; eax = eax - <span class="number">1</span></span><br><span class="line"><span class="function"><span class="keyword">sub</span> <span class="title">eax</span>, <span class="title">ecx</span>            </span>; eax = eax - ecx</span><br></pre></td></tr></table></figure>
+
+<p>乘法和除法、以及更多的运算，这里就不再介绍了，这里的重点是为汇编学习带路。</p>
+<p>更多寄存器<br>除了前面列举的eax、ebx、ecx、edx之外，还有一些寄存器：</p>
+<p>esi<br>edi<br>ebp<br>其中eax、ebx、ecx、edx这四个寄存器是通用寄存器，可以随便存放数据，也能参与到大多数的运算。而余下的三个多见于一些访问内存的场景下，不过，目前，你还是可以随便抓住一个就拿来用的。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>到这里，赶紧根据前面了解的东西，多写几遍吧，加深一下印象。</p>
+<p>前面说的学习汇编没用，是瞎说的。学习汇编有用，后面想起来了再说。</p>
+<p>编辑于 2017-10-19</p>
+]]></content>
+      <categories>
+        <category>汇编语言</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>汇编语言入门三：是时候上内存了</title>
+    <url>/2019/10/25/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%B8%89%EF%BC%9A%E6%98%AF%E6%97%B6%E5%80%99%E4%B8%8A%E5%86%85%E5%AD%98%E4%BA%86/</url>
+    <content><![CDATA[<p><a href="https://zhuanlan.zhihu.com/p/23722940" target="_blank" rel="noopener" title="原文链接">原文链接</a></p>
+<p>上回说到了寄存器和指令，这回说下内存访问。开始之前，先来复习一下。</p>
+<h3 id="回顾"><a href="#回顾" class="headerlink" title="回顾"></a>回顾</h3><h4 id="寄存器"><a href="#寄存器" class="headerlink" title="寄存器"></a>寄存器</h4><p>寄存器是在CPU里面<br>寄存器的存储空间很小<br>寄存器存放的是CPU马上要处理的数据或者刚处理出的结果（还是热乎的）</p>
+<a id="more"></a>
+<h4 id="指令"><a href="#指令" class="headerlink" title="指令"></a>指令</h4><p>传送数据用的指令mov<br>做加法用的指令add<br>做减法用的指令sub<br>函数调用后返回的指令ret</p>
+<h3 id="指针和内存"><a href="#指针和内存" class="headerlink" title="指针和内存"></a>指针和内存</h3><h3 id="高能预警"><a href="#高能预警" class="headerlink" title="高能预警"></a>高能预警</h3><p>高能预警，后面会涉及到一些高难度动作，请提前做好以下准备：</p>
+<p>精通2进制和16进制加减法<br>精通2进制表示与16进制表示之间的关系<br>精通8位、16位、32位、64位二进制数的16进制表示<br>举个例子，一个16进制数0BC71820，其二进制表示为：</p>
+<figure class="highlight basic"><table><tr><td class="code"><pre><span class="line"><span class="symbol">00001011 </span><span class="number">11000111</span> <span class="number">00011000</span> <span class="number">00100000</span></span><br></pre></td></tr></table></figure>
+
+<p>你能快速地找到它们之间的对应关系吗？不会的话快去复习吧。</p>
+<h3 id="寄存器宽度"><a href="#寄存器宽度" class="headerlink" title="寄存器宽度"></a>寄存器宽度</h3><p>现在，为了简便，我们只讨论32位宽的寄存器。也就是说，目前我们讨论的寄存器，它的宽度都是32位的，也就是里面存放了一个32位长的2进制数。</p>
+<p>通常，一个字节为8个二进制比特位，那么一个32位长的二进制数，那么它的大小就应该是4个字节。也就是把32位长的寄存器写入到内存里，会覆盖掉四个字节的存储空间。</p>
+<h3 id="内存"><a href="#内存" class="headerlink" title="内存"></a>内存</h3><p>想必内存大家心里都比较有数，就是暂时存放CPU计算所需的指令和数据的地方。</p>
+<p>诶？那前面说好的寄存器呢？寄存器也是类似的功能啊。对的，寄存器有类似功能，理论上一个最小的计算系统只需要寄存器和CPU的计算部件（ALU）就够了。不过，实际情况更加复杂一些，还是拿计算题举例，这次更复杂了：</p>
+<p>（这里的例子只够说明寄存器和内存的角色区别，而非出现内存和寄存器这样角色的根本原因）</p>
+<figure class="highlight angelscript"><table><tr><td class="code"><pre><span class="line">( <span class="number">847623785</span> * <span class="number">12874873</span> + <span class="number">274632</span> ) / <span class="number">999</span> =</span><br></pre></td></tr></table></figure>
+
+<p>好了，这个题目就不像前面的那么简单了，首先你肯定没法直接在脑子里三两下就算出来，还是得需要一个草稿纸了。</p>
+<p>计算过程中，你还是会把草稿纸上正在计算的几个数字记在脑子里，然后快速地算完并记下来，然后往草稿纸上写。</p>
+<p>最后，在草稿纸上演算完毕后，你会把最终结果写到试卷上。</p>
+<p>好了，这里的草稿纸就相当于是内存了。它也充当一个临时记录数据的作用，不过它的容量就比自己的脑子要大得多了，而且一旦你把东西写下来，也就不那么担心忘记了。</p>
+<p>诶？我不能多做点寄存器，就不需要单独的内存了呀？是的，理论上是这样，然而，实际上如果多做一点寄存器的话，CPU就要卖$9999999一片了，贵啊（具体原因可以了解SRAM与DRAM）。</p>
+<p>也就是说，在计算机系统里，寄存器和内存都充当临时存储用，但是寄存器太小也太少了，内存就能帮个大忙了。</p>
+<h3 id="指针"><a href="#指针" class="headerlink" title="指针"></a>指针</h3><p>在C语言里面，有个神奇的东西叫做指针，它是初学者的噩梦，也是高手的天堂。</p>
+<p>这里不打算给不明白指针的人讲个明白，直接进入正题。首先，内存是一个比较大的存储器，里面可以存放非常非常多的字节。</p>
+<p>好了，现在我们来为整个内存的所有字节编号，为了方便，咱们首先考虑按照字节为单位连续编号：</p>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">0  1  2  3  4  5  6  7              <span class="built_in">..</span>.</span><br><span class="line"><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span>.           <span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span></span><br><span class="line">|12|b7|33|e8|66|4c|87|3c|    <span class="built_in">..</span>.    |cc|cc|cc|cc|cc|cd|cd|</span><br><span class="line"><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span>.           <span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span><span class="built_in">..</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>大概意思一下，你可以想象每一个格子就是一个字节，每个格子都有编号，相邻的格子的编号也是相邻的。这个编号，你就可以理解为所谓的指针或者地址（这里不严格区分指针与地址）。那么当我需要获取某个位置的数据时，那么我们只需要一个编号（也就是地址）就知道在哪些格子里获取数据了，当然，写入数据也是一样的道理。</p>
+<p>到这里，我们大概清楚了访问内存的时候需要一些什么东西：</p>
+<p>首先得有内存<br>要访问内存的哪个位置（编号，地址）<br>那，我哪知道地址是多少呢？别介，这不是重点，你不需要知道地址具体是多少，你只需要知道它是个地址，按照正确的方式去思考和使用就行了。继续。</p>
+<p>mov指令还没完<br>前面说到，寄存器可以临时存储计算所需数据和结果，那么，问题来了，寄存器也就那么几个，用完了咋办？你能发现这个问题，说明你有成为大佬的潜质。接下来，说正事。</p>
+<p>前面说到了mov指令，可以将数据送入寄存器，也可以将一个寄存器的数据送到另一个寄存器，像这样：</p>
+<figure class="highlight x86asm"><table><tr><td class="code"><pre><span class="line"><span class="keyword">mov</span> <span class="built_in">eax</span>, <span class="number">1</span></span><br><span class="line"><span class="keyword">mov</span> <span class="built_in">ebx</span>, <span class="built_in">eax</span></span><br></pre></td></tr></table></figure>
+
+<p>好了，这还没完，mov指令可谓是x86中花样比较多的指令了，前面的两种情形都还是比较简单的情形，今天我们来扯一下更复杂的。</p>
+<p>寄存器不够用了<br>现在，某个很复杂的运算让你感觉寄存器不够用了，怎么办？按照前面说的意思，要把寄存器的东西放到内存里去，把寄存器的空间腾出来，就可以了。</p>
+<p>好的思路有了，可是，怎么把寄存器的数据丢到内存里去呢？还是使用mov指令，只是写法不同了：</p>
+<figure class="highlight x86asm"><table><tr><td class="code"><pre><span class="line"><span class="keyword">mov</span> [<span class="number">0x5566</span>], <span class="built_in">eax</span></span><br></pre></td></tr></table></figure>
+
+<p>好了，现在，请全神贯注。这条指令就是将寄存器的数据丢到内存里去。再多看几眼，免得看得不够顺眼：</p>
+<figure class="highlight x86asm"><table><tr><td class="code"><pre><span class="line"><span class="keyword">mov</span> [<span class="number">0x0699</span>], <span class="built_in">eax</span></span><br><span class="line"><span class="keyword">mov</span> [<span class="number">0x0998</span>], <span class="built_in">ebx</span></span><br><span class="line"><span class="keyword">mov</span> [<span class="number">0x1299</span>], <span class="built_in">ecx</span></span><br><span class="line"><span class="keyword">mov</span> [<span class="number">0x1499</span>], <span class="built_in">edx</span></span><br><span class="line"><span class="keyword">mov</span> [<span class="number">0x1999</span>], <span class="built_in">esi</span></span><br></pre></td></tr></table></figure>
+
+<p>好了，应该已经脸熟了。</p>
+<p>现在，我告诉你，最前面那个指令mov [0x5566], eax的作用：</p>
+<p>将eax寄存器的值，保存到编号为0x5566对应的内存里去，按照前面的说法，一个eax需要4个字节的空间才装得下，所以编号为0x5566 0x5567 0x5568 0x5569这四个字节都会被eax的某一部分覆盖掉。</p>
+<p>好了，我们已经了解了如何将一个寄存器的值保存到内存里去，那么我怎么把它取出来呢？</p>
+<figure class="highlight x86asm"><table><tr><td class="code"><pre><span class="line"><span class="keyword">mov</span> <span class="built_in">eax</span>, [<span class="number">0x0699</span>]</span><br><span class="line"><span class="keyword">mov</span> <span class="built_in">ebx</span>, [<span class="number">0x0998</span>]</span><br><span class="line"><span class="keyword">mov</span> <span class="built_in">ecx</span>, [<span class="number">0x1299</span>]</span><br><span class="line"><span class="keyword">mov</span> <span class="built_in">edx</span>, [<span class="number">0x1499</span>]</span><br><span class="line"><span class="keyword">mov</span> <span class="built_in">esi</span>, [<span class="number">0x1999</span>]</span><br></pre></td></tr></table></figure>
+
+<p>反过来写就是了，比如mov eax, [0x0699]就表示把0x0699这个地址对应那片内存区域中的后4个字节取出来放到eax里面去。</p>
+<p>到此<br>到这，我们已经学会了如何把寄存器的数据临时保存到内存里，也知道怎么把内存里的数据重新放回寄存器了。</p>
+<h3 id="动手编程"><a href="#动手编程" class="headerlink" title="动手编程"></a>动手编程</h3><p>接下来，该动手操练了。先来一个题目：</p>
+<p>假设我们现在有一个比较蛋疼的要求，就是把1和2相加，然后把结果放到内存里面，最后再把内存里的结果取出来。（好无聊的题目）</p>
+<p>那么按理说，我们就应该这么写代码：</p>
+<figure class="highlight x86asm"><table><tr><td class="code"><pre><span class="line"><span class="meta">global</span> main</span><br><span class="line"></span><br><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">ebx</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">ecx</span>, <span class="number">2</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">ebx</span>, <span class="built_in">ecx</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">mov</span> [<span class="number">0x233</span>], <span class="built_in">ebx</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, [<span class="number">0x233</span>]</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">ret</span></span><br></pre></td></tr></table></figure>
+
+<p>好了，编译运行，假如程序是danteng，那么运行结果应该是这样：</p>
+<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>./danteng ; echo <span class="variable">$?</span></span><br><span class="line"><span class="number">3</span></span><br></pre></td></tr></table></figure>
+
+<p>实际上，并不能行。程序挂了，没有输出我们想要的结果。</p>
+<p>这是在逗我呢？别急，按理说，前面说的都是没问题的，只是这里有另外一个问题，那就是“我们的程序运行在一个受管控的环境下，是不能随便读写内存的”。这里需要特殊处理一下，至于具体为何，后面有机会再慢慢叙述，这不是当下的重点，先照抄就是了。</p>
+<p>程序应该改成这样才行：</p>
+<figure class="highlight x86asm"><table><tr><td class="code"><pre><span class="line"><span class="meta">global</span> main</span><br><span class="line"></span><br><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">ebx</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">ecx</span>, <span class="number">2</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">ebx</span>, <span class="built_in">ecx</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">mov</span> [sui_bian_xie], <span class="built_in">ebx</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, [sui_bian_xie]</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">ret</span></span><br><span class="line"></span><br><span class="line"><span class="meta">section</span> .data</span><br><span class="line">sui_bian_xie   <span class="built_in">dw</span>    <span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+<p>好了这下运行，我们得到了结果：</p>
+<figure class="highlight elixir"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>./danteng ; echo <span class="variable">$?</span></span><br><span class="line"><span class="number">3</span></span><br></pre></td></tr></table></figure>
+
+<p>好了，有了程序，咱们来梳理一下每一条语句的功能：</p>
+<figure class="highlight x86asm"><table><tr><td class="code"><pre><span class="line"><span class="keyword">mov</span> <span class="built_in">ebx</span>, <span class="number">1</span>                   <span class="comment">; 将ebx赋值为1</span></span><br><span class="line"><span class="keyword">mov</span> <span class="built_in">ecx</span>, <span class="number">2</span>                   <span class="comment">; 将ecx赋值为2</span></span><br><span class="line"><span class="keyword">add</span> <span class="built_in">ebx</span>, <span class="built_in">ecx</span>                 <span class="comment">; ebx = ebx + ecx</span></span><br><span class="line">    </span><br><span class="line"><span class="keyword">mov</span> [sui_bian_xie], <span class="built_in">ebx</span>      <span class="comment">; 将ebx的值保存起来</span></span><br><span class="line"><span class="keyword">mov</span> <span class="built_in">eax</span>, [sui_bian_xie]      <span class="comment">; 将刚才保存的值重新读取出来，放到eax中</span></span><br><span class="line">    </span><br><span class="line"><span class="keyword">ret</span>                          <span class="comment">;</span></span><br></pre></td></tr></table></figure>
+<p> 返回，整个程序最后的返回值，就是eax中的值<br>好了，到这里想必你基本也明白是怎么一回事了，有几点需要专门注意的：</p>
+<p>程序返回时eax寄存器的值，便是整个程序退出后的返回值，这是当下我们使用的这个环境里的一个约定，我们遵守便是<br>与前面那个崩溃的程序相比，后者有一些微小的变化，还多了两行代码</p>
+<figure class="highlight stylus"><table><tr><td class="code"><pre><span class="line"><span class="selector-tag">section</span> .data</span><br><span class="line">sui_bian_xie   dw    <span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+<p>第一行先不管是表示接下来的内容经过编译后，会放到可执行文件的数据区域，同时也会随着程序启动的时候，分配对应的内存。</p>
+<p>第二行就是描述真实的数据的关键所在里，这一行的意思是开辟一块4字节的空间，并且里面用0填充。这里的dw（double word）就表示4个字节，前面那个sui_bian_xie的意思就是这里可以随便写，也就是起个名字而已，方便自己写代码的时候区分，这个sui_bian_xie会在编译时被编译器处理成一个具体的地址，我们无需理会地址具体时多少，反正知道前后的sui_bian_xie指代的是同一个东西就行了。</p>
+<h3 id="疯狂的写代码"><a href="#疯狂的写代码" class="headerlink" title="疯狂的写代码"></a>疯狂的写代码</h3><p>好了，有了这一个程序作铺垫，我们继续。趁热打铁，继续写代码，分析代码：</p>
+<figure class="highlight x86asm"><table><tr><td class="code"><pre><span class="line"><span class="meta">global</span> main</span><br><span class="line"></span><br><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">ebx</span>, [number_1]</span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">ecx</span>, [number_2]</span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">ebx</span>, <span class="built_in">ecx</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">mov</span> [result], <span class="built_in">ebx</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, [result]</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">ret</span></span><br><span class="line"></span><br><span class="line"><span class="meta">section</span> .data</span><br><span class="line">number_1      <span class="built_in">dw</span>        <span class="number">10</span></span><br><span class="line">number_2      <span class="built_in">dw</span>        <span class="number">20</span></span><br><span class="line">result        <span class="built_in">dw</span>        <span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+<p>好了，自己琢磨着写代码，运行程序，然后分析程序每一条指令都在干什么。还有，这个程序本身还可以精简，如果你已经发现了，那说明你老T*棒了。</p>
+<figure class="highlight x86asm"><table><tr><td class="code"><pre><span class="line"><span class="meta">global</span> main</span><br><span class="line"></span><br><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, [number_1]</span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">ebx</span>, [number_2]</span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="built_in">ebx</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">ret</span></span><br><span class="line"></span><br><span class="line"><span class="meta">section</span> .data</span><br><span class="line">number_1      <span class="built_in">dw</span>        <span class="number">10</span></span><br><span class="line">number_2      <span class="built_in">dw</span>        <span class="number">20</span></span><br></pre></td></tr></table></figure>
+
+<p>好了，好好分析比较上面的几个程序，基本这一块就了解得差不多了。随着了解的逐渐深入，我们后续还会介绍更多更复杂，更全面的内容。</p>
+<h3 id="反汇编"><a href="#反汇编" class="headerlink" title="反汇编"></a>反汇编</h3><p>这里插播一段反汇编的讲解。引入调试器和反汇编工具，我们后续将有更多机会对程序进行深入的分析，现阶段，我们先找一个简单的程序上手，熟悉一下操作和工具。</p>
+<p>先安装gdb：</p>
+<figure class="highlight routeros"><table><tr><td class="code"><pre><span class="line">$ sudo apt-<span class="builtin-name">get</span> install gdb -y</span><br></pre></td></tr></table></figure>
+
+<p>然后，我们把这个程序，保存为test.asm：</p>
+<figure class="highlight x86asm"><table><tr><td class="code"><pre><span class="line"><span class="meta">global</span> main</span><br><span class="line"></span><br><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">ebx</span>, <span class="number">2</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="built_in">ebx</span></span><br><span class="line">    <span class="keyword">ret</span></span><br></pre></td></tr></table></figure>
+
+<p>然后编译：</p>
+<figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">$ nasm -f elf <span class="keyword">test</span>.asm -o <span class="keyword">test</span>.o ; gcc -m32 <span class="keyword">test</span>.o -o <span class="keyword">test</span></span><br></pre></td></tr></table></figure>
+
+<p>运行：</p>
+<p>$ ./test ; echo $?<br>3<br>OK，到这里，程序是对的了。开始动刀子，使用gdb：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> gdb ./<span class="built_in">test</span></span></span><br></pre></td></tr></table></figure>
+
+<p>启动之后，你会看到终端编程变成这样了：</p>
+<figure class="highlight clojure"><table><tr><td class="code"><pre><span class="line">(<span class="name">gdb</span>)</span><br></pre></td></tr></table></figure>
+
+<p>OK，说明你成功了，接下来输入，并回车：</p>
+<figure class="highlight gams"><table><tr><td class="code"><pre><span class="line">(gdb) <span class="keyword">set</span> disassembly-flavor <span class="comment">intel</span></span><br></pre></td></tr></table></figure>
+
+<p>这一步是把反汇编的格式调整称为intel的格式，稍后完事儿后你可以尝试不用这个设置，看看是什么效果。好了，继续，反汇编，输入命令并回车：</p>
+<figure class="highlight x86asm"><table><tr><td class="code"><pre><span class="line">(gdb) disas main</span><br><span class="line">Dump of assembler code for function main:</span><br><span class="line">   <span class="number">0x080483f0</span> &lt;+<span class="number">0</span>&gt;: <span class="keyword">mov</span>    <span class="built_in">eax</span>,<span class="number">0x1</span></span><br><span class="line">   <span class="number">0x080483f5</span> &lt;+<span class="number">5</span>&gt;: <span class="keyword">mov</span>    <span class="built_in">ebx</span>,<span class="number">0x2</span></span><br><span class="line">   <span class="number">0x080483fa</span> &lt;+<span class="number">10</span>&gt;:    <span class="keyword">add</span>    <span class="built_in">eax</span>,<span class="built_in">ebx</span></span><br><span class="line">   <span class="number">0x080483fc</span> &lt;+<span class="number">12</span>&gt;:    <span class="keyword">ret</span>    </span><br><span class="line">   <span class="number">0x080483fd</span> &lt;+<span class="number">13</span>&gt;:    <span class="keyword">xchg</span>   <span class="built_in">ax</span>,<span class="built_in">ax</span></span><br><span class="line">   <span class="number">0x080483ff</span> &lt;+<span class="number">15</span>&gt;:    <span class="keyword">nop</span></span><br><span class="line">End of assembler dump.</span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure>
+
+<p>好了，整个程序就在这里被反汇编出来了，请你先仔细看一看，是不是和我们写的源代码差不多？（后面多了两行汇编，你把它们当成路人甲看待就行了，不用理它）。</p>
+<h3 id="动态调试"><a href="#动态调试" class="headerlink" title="动态调试"></a>动态调试</h3><p>后面将继续介绍动态调试，帮助更加深入地理解汇编中的一些概念。现在先提示一些概念：</p>
+<p>断点：程序在运行过程中，当它执行到“断点”对应的这条语句的时候，就会被强行叫停，等着我们把它看个精光，然后再把它放走<br>注意看反汇编代码，每一行代码的前面都有一串奇怪的数字，这串奇怪的数字指它右边的那条指令在程序运行时的内存中的位置（地址）。注意，指令也是在内存里面的，也有相应的地址。<br>好了，我们开始尝试一下调试功能，首先是设置一个断点，让程序执行到某一个地方就停下来，给我们足够的时间观察。在gdb的命令行中输入：</p>
+<figure class="highlight angelscript"><table><tr><td class="code"><pre><span class="line">(gdb) <span class="keyword">break</span> *<span class="number">0x080483f5</span></span><br></pre></td></tr></table></figure>
+<p>后面那串奇怪的数字在不同的环境下可能不一样，你可以结合这里的代码，对照着自己的实际情况修改。（使用反汇编中&lt;+5&gt;所在的那一行前面的数字）</p>
+<p>然后我们执行程序：</p>
+<figure class="highlight groovy"><table><tr><td class="code"><pre><span class="line">(gdb) run</span><br><span class="line">Starting <span class="string">program:</span> <span class="regexp">/home/</span>vagrant<span class="regexp">/code/</span>asm<span class="regexp">/03/</span>test </span><br><span class="line"></span><br><span class="line">Breakpoint <span class="number">1</span>, <span class="number">0x080483f5</span> <span class="keyword">in</span> main ()</span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure>
+
+<p>看到了吧，这下程序就被停在了我们设置的断点那个地方，对比着反汇编和你的汇编代码，找一找现在程序是停在哪个位置的吧。run后面提示的内容里，那一串奇怪的数字又出现了，其实这就是我们前面设置断点的那个地址。</p>
+<p>好了，到这里，我们就把程序看个精光吧，先看一下eax寄存器的值：</p>
+<figure class="highlight angelscript"><table><tr><td class="code"><pre><span class="line">(gdb) info register eax</span><br><span class="line">eax            <span class="number">0x1</span>  <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>刚好就是1啊，在我们设置断点的那个地方，它的前面一个指令是mov eax, 1，这时候eax的内容就真的变成1了，同样，你还可以看一下ebx：</p>
+<figure class="highlight x86asm"><table><tr><td class="code"><pre><span class="line">info register <span class="built_in">ebx</span></span><br><span class="line"><span class="built_in">ebx</span>            <span class="number">0xf7fce000</span>   -<span class="number">134422528</span></span><br></pre></td></tr></table></figure>
+
+<p>ebx的值并不是2，这是因为mov ebx, 2这个语句还没有执行，所以暂时你看不到。那我们现在让它执行一下吧：</p>
+<figure class="highlight lisp"><table><tr><td class="code"><pre><span class="line">(<span class="name">gdb</span>) stepi</span><br><span class="line"><span class="number">0</span>x080483fa in main ()</span><br></pre></td></tr></table></figure>
+
+<p>好了，输入stepi之后，到这里，程序在我们的控制之下，向后运行了一条指令，也就是刚刚执行了mov ebx, 2，这时候看下ebx：</p>
+<figure class="highlight angelscript"><table><tr><td class="code"><pre><span class="line">(gdb) info register ebx</span><br><span class="line">ebx            <span class="number">0x2</span>  <span class="number">2</span></span><br></pre></td></tr></table></figure>
+
+<p>看到了吧，ebx已经变成2了。继续，输入stepi，然后看执行了add指令后的各个寄存器的值：</p>
+<figure class="highlight lisp"><table><tr><td class="code"><pre><span class="line">(<span class="name">gdb</span>) stepi</span><br><span class="line"><span class="number">0</span>x080483fc in main ()</span><br><span class="line">(<span class="name">gdb</span>) info register eax</span><br><span class="line">eax            <span class="number">0</span>x3  <span class="number">3</span></span><br></pre></td></tr></table></figure>
+
+<p>执行完add指令之后，eax跟我们想的一样，变成了3。如果我不知道程序现在停在哪里了，怎么办？很简单，输入disas之后，又能看到反汇编了，同时gdb还会标记出当前断点所在的位置：</p>
+<figure class="highlight x86asm"><table><tr><td class="code"><pre><span class="line">(gdb) disas</span><br><span class="line">Dump of assembler code for function main:</span><br><span class="line">   <span class="number">0x080483f0</span> &lt;+<span class="number">0</span>&gt;: <span class="keyword">mov</span>    <span class="built_in">eax</span>,<span class="number">0x1</span></span><br><span class="line">   <span class="number">0x080483f5</span> &lt;+<span class="number">5</span>&gt;: <span class="keyword">mov</span>    <span class="built_in">ebx</span>,<span class="number">0x2</span></span><br><span class="line">   <span class="number">0x080483fa</span> &lt;+<span class="number">10</span>&gt;:    <span class="keyword">add</span>    <span class="built_in">eax</span>,<span class="built_in">ebx</span></span><br><span class="line">=&gt; <span class="number">0x080483fc</span> &lt;+<span class="number">12</span>&gt;:    <span class="keyword">ret</span>    </span><br><span class="line">   <span class="number">0x080483fd</span> &lt;+<span class="number">13</span>&gt;:    <span class="keyword">xchg</span>   <span class="built_in">ax</span>,<span class="built_in">ax</span></span><br><span class="line">   <span class="number">0x080483ff</span> &lt;+<span class="number">15</span>&gt;:    <span class="keyword">nop</span></span><br><span class="line">End of assembler dump.</span><br></pre></td></tr></table></figure>
+
+<p>现在刚好就在add执行过后的ret那个地方。这时候，如果你不想玩了，可以输入continue，让程序自由地飞翔起来，直到GG。</p>
+<figure class="highlight angelscript"><table><tr><td class="code"><pre><span class="line">(gdb) <span class="keyword">continue</span></span><br><span class="line">Continuing.</span><br><span class="line">[Inferior <span class="number">1</span> (process <span class="number">1283</span>) exited with code <span class="number">03</span>]</span><br></pre></td></tr></table></figure>
+
+<p>看到了吧，程序已经GG了，而且返回了一个数字03。这刚好就是那个eax寄存器的值嘛。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>好了，这次就到这里结束，内容有点多，没关系可以慢慢来，没事的时候就翻出来，把目前学的汇编语言和gdb都好好玩一下，最好是能玩出花来，这样才能有更多的收获。清点一下今天的内容：</p>
+<p>通过mov指令可以把内存的数据放到寄存器中，也可以把寄存器的数据放回到内存<br>在操作系统的保护下，程序是不能随便到处访问内存的，乱搞的话会GG<br>gdb的功能很牛逼</p>
+<p>若读者对文中部分内容有疑惑或是有表达不当或是有疏漏，欢迎指正。</p>
+<p>发布于 2016-11-16</p>
+]]></content>
+      <categories>
+        <category>汇编语言</category>
+      </categories>
+  </entry>
+</search>
