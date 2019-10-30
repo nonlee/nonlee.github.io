@@ -12,7 +12,7 @@
       <a href="{{ config.root }}" class="brand" rel="start">
         <span class="logo-line-before"><i></i></span>
 <!--    <span class="site-title">{{ title }}</span> -->
-        <span class="site-title">nonlee</span>
+        <span class="site-title">nonlee.com</span>
         <span class="logo-line-after"><i></i></span>
       </a>
     </div>
