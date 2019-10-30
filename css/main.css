@@ -1210,7 +1210,7 @@ pre .javascript .function {
 }
 .links-of-author a::before,
 .links-of-author span.exturl::before {
-  background: #03bb1f;
+  background: #ff33c4;
   border-radius: 50%;
   content: ' ';
   display: inline-block;
@@ -1369,7 +1369,7 @@ pre .javascript .function {
   transition-timing-function: ease-in-out;
 }
 .post-toc ol a:hover {
-  border-bottom-color: #ccc;
+  border-bottom-color: #555;
   color: #555;
 }
 .post-toc .nav-item {
