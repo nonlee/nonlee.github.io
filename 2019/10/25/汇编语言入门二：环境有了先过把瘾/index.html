@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon-64.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.ico">
+  <link rel="mask-icon" href="/images/favicon-64.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-bounce.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.4.2',
+    exturl: false,
+    sidebar: {"position":"left","display":"hide","offset":12,"onmobile":false},
+    copycode: {"enable":true,"show_result":true,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":-1,"unescape":true,"preload":true},
+    path: 'search.xml',
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":null}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="原文链接 上回说到，咱们把环境搭好了，可以开始玩耍汇编了。 寄存器是啥玩意儿？开始学C的时候，有没有一种感觉，变量？类型？我可是要改变世界的男人，怎么就成天在跟i++较劲啊？这黑框程序还只能用来算数学，跟说好的不一样呢？？？想必后来，见得多了，你的想法也不那么幼稚了吧。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="汇编语言入门二：环境有了先过把瘾">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;10&#x2F;25&#x2F;%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%BA%8C%EF%BC%9A%E7%8E%AF%E5%A2%83%E6%9C%89%E4%BA%86%E5%85%88%E8%BF%87%E6%8A%8A%E7%98%BE&#x2F;index.html">
+<meta property="og:site_name" content="工作经验分享">
+<meta property="og:description" content="原文链接 上回说到，咱们把环境搭好了，可以开始玩耍汇编了。 寄存器是啥玩意儿？开始学C的时候，有没有一种感觉，变量？类型？我可是要改变世界的男人，怎么就成天在跟i++较劲啊？这黑框程序还只能用来算数学，跟说好的不一样呢？？？想必后来，见得多了，你的想法也不那么幼稚了吧。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-10-30T07:26:22.466Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2019/10/25/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%BA%8C%EF%BC%9A%E7%8E%AF%E5%A2%83%E6%9C%89%E4%BA%86%E5%85%88%E8%BF%87%E6%8A%8A%E7%98%BE/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>汇编语言入门二：环境有了先过把瘾 | 工作经验分享</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">工作经验分享</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/25/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%BA%8C%EF%BC%9A%E7%8E%AF%E5%A2%83%E6%9C%89%E4%BA%86%E5%85%88%E8%BF%87%E6%8A%8A%E7%98%BE/">
+    
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="ljxhb@126.com">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="工作经验分享">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          汇编语言入门二：环境有了先过把瘾
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-10-25 21:55:23" itemprop="dateCreated datePublished" datetime="2019-10-25T21:55:23+08:00">2019-10-25</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index">
+                    <span itemprop="name">汇编语言</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/2019/10/25/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%BA%8C%EF%BC%9A%E7%8E%AF%E5%A2%83%E6%9C%89%E4%BA%86%E5%85%88%E8%BF%87%E6%8A%8A%E7%98%BE/" class="post-meta-item leancloud_visitors" data-flag-title="汇编语言入门二：环境有了先过把瘾" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">评论数：</span>
+    
+    <a title="valine" href="/2019/10/25/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%BA%8C%EF%BC%9A%E7%8E%AF%E5%A2%83%E6%9C%89%E4%BA%86%E5%85%88%E8%BF%87%E6%8A%8A%E7%98%BE/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2019/10/25/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%BA%8C%EF%BC%9A%E7%8E%AF%E5%A2%83%E6%9C%89%E4%BA%86%E5%85%88%E8%BF%87%E6%8A%8A%E7%98%BE/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="https://zhuanlan.zhihu.com/p/23639191" target="_blank" rel="noopener" title="原文链接">原文链接</a></p>
+<p>上回说到，咱们把环境搭好了，可以开始玩耍汇编了。</p>
+<h3 id="寄存器是啥玩意儿？"><a href="#寄存器是啥玩意儿？" class="headerlink" title="寄存器是啥玩意儿？"></a>寄存器是啥玩意儿？</h3><p>开始学C的时候，有没有一种感觉，变量？类型？我可是要改变世界的男人，怎么就成天在跟i++较劲啊？这黑框程序还只能用来算数学，跟说好的不一样呢？？？想必后来，见得多了，你的想法也不那么幼稚了吧。</p>
+<a id="more"></a>
+
+<p>好了，接下来汇编也会给你同样一种感觉的。啥玩意儿？寄存器？寻址？说好的变量类型循环函数呢？。</p>
+<p>好了， 我想先刻意避开这些晦涩难懂的东西，找到感觉了，再回头来研究条条框框。在此先把基本的几个简单的东西弄熟练，过早引入太多概念容易让人头昏眼花。</p>
+<p>这里就说寄存器，通俗地来解释一下。回到上小学的时候，现在有一大堆计算题：</p>
+<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">99</span>+<span class="number">10</span>=</span><br><span class="line"><span class="number">32</span><span class="number">-20</span>=</span><br><span class="line"><span class="number">14</span>+<span class="number">21</span>=</span><br><span class="line"><span class="number">47</span><span class="number">-9</span>=</span><br><span class="line"><span class="number">87</span>+<span class="number">3</span>=</span><br><span class="line"><span class="number">86</span><span class="number">-8</span>=</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+
+<p>正常来讲，要算出这个么多题目，你需要一支笔，一边计算的同时一边把结果写下来。</p>
+<p>好了，到这里，我就来做个类比，助你大致理解寄存器是干啥用的。首先，我们把CPU和大脑做一个类比。</p>
+<p>你在纸上进行计算的时候，需要不断往纸上写下计算结果，一边在脑子里进行计算。大致过程就像：</p>
+<ol>
+<li>在纸上找一个题目，先看清两个数字，并迅速记下来</li>
+<li>在脑子里对这两个数字进行计算，计算出的结果也是记在脑子里的</li>
+<li>将计算结果写在纸上，继续做下一个题目<br>好了，这个过程就和计算机执行的过程有几分相似。草稿纸就相当于是个内存，脑子就是CPU。</li>
+</ol>
+<p>在计算的时候，你需要知道计算的两个数字，而且还得知道是做什么运算，这些信息都是从草稿纸上看见之后，短暂记忆在脑子里的。</p>
+<p>CPU在计算的时候也是一样，需要知道要计算的数据是什么，还得知道是做什么运算，这些信息也需要临时保存在CPU的某个地方。这个地方就是寄存器。</p>
+<p>好了到这里，不知道你有没有看明白？也就是说CPU里头的寄存器的作用，就像我们在做计算的时候会临时在脑子里记住数字一样。当然你的脑子能记住不止一个数据，CPU也不止一个寄存器。</p>
+<h3 id="为啥C语言里没有说这些？"><a href="#为啥C语言里没有说这些？" class="headerlink" title="为啥C语言里没有说这些？"></a>为啥C语言里没有说这些？</h3><p>就是因为写汇编语言的时候，要在有限的寄存器情况下，编写复杂的程序，还要考虑灵活性、性能、正确性等等乱七八糟的问题，对于程序员是一个超级大的负担。</p>
+<p>因此有人专门发明了许多更方便好用的“高级语言”，然后还专门写了个配套的程序能够把用这个“高级语言”写的东西翻译成汇编语言，再将汇编语言翻译成机器能执行的指令。其中之一就是C语言。也就是C语言发明出来就是奔着比汇编语言好用的目标去的。所以啊，相比汇编这种繁琐复杂的编程方式，高级语言不知道高级到哪里去了。</p>
+<h3 id="那学习汇编语言有用吗？"><a href="#那学习汇编语言有用吗？" class="headerlink" title="那学习汇编语言有用吗？"></a>那学习汇编语言有用吗？</h3><p>没有。</p>
+<h3 id="开始一顿乱写"><a href="#开始一顿乱写" class="headerlink" title="开始一顿乱写"></a>开始一顿乱写</h3><p>好了，先介绍个程序，运行完了能够开心一下：</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">global</span> main</span><br><span class="line"></span><br><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">ebx</span>, <span class="number">2</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="built_in">ebx</span></span><br><span class="line">    <span class="keyword">ret</span></span><br></pre></td></tr></table></figure>
+
+<p>老套路，保存成文件，比如叫做nmb.asm，然后编译运行：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ </span>nasm -f elf nmb.asm -o nmb.o</span><br><span class="line"><span class="variable">$ </span>gcc -m32 nmb.o -o nmb</span><br><span class="line"><span class="variable">$ </span>./nmb ; echo <span class="variable">$?</span></span><br><span class="line"><span class="number">3</span></span><br></pre></td></tr></table></figure>
+
+<p>如果你能看出来这里面的端倪，说明你是一个聪明伶俐的天才。不就是做了个算术题1+2=3么。</p>
+<p>好了我们来看一下这个程序。里面的eax就是指代的寄存器。同理ebx也是一个寄存器。也就是这个CPU在做计算题的时候至少能够记住两个数字，实际上，它有更多寄存器，稍后再慢慢说。</p>
+<p>OK。既然找到一些感觉了，就继续胡乱地拍出一大堆程序来先玩个够吧：</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">global</span> main</span><br><span class="line"></span><br><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="number">2</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="number">3</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="number">4</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="number">5</span></span><br><span class="line">    <span class="keyword">ret</span></span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">global</span> main</span><br><span class="line"></span><br><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">ebx</span>, <span class="number">2</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">ecx</span>, <span class="number">3</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">edx</span>, <span class="number">4</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="built_in">ebx</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="built_in">ecx</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="built_in">edx</span></span><br><span class="line">    <span class="keyword">ret</span></span><br></pre></td></tr></table></figure>
+
+<p>至于这两个程序是什么结果，你自己玩吧。不动手练练怎么学得好。</p>
+<h3 id="指令"><a href="#指令" class="headerlink" title="指令"></a>指令</h3><p>指令就像是你发给CPU的一个个命令，你让它做啥它就做啥。当然了，前提是CPU得支持对应的功能，CPU是没有“吃饭”功能的，你也写不出让它”吃饭“的指令来。</p>
+<p>前面我们共用到了三个指令：分别是mov、add、ret。</p>
+<p>我来逐个解释这些指令：</p>
+<p>mov<br>数据传送指令，我们可以像下面这样用mov指令，达到数据传送的目的。</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">mov</span> <span class="built_in">eax</span>, <span class="number">1</span>          <span class="comment">; 让eax的值为1（eax = 1）</span></span><br><span class="line"><span class="keyword">mov</span> <span class="built_in">ebx</span>, <span class="number">2</span>          <span class="comment">; 让ebx的值为2（ebx = 2）</span></span><br><span class="line"><span class="keyword">mov</span> <span class="built_in">ecx</span>, <span class="built_in">eax</span>        <span class="comment">; 把eax的值传送给ecx（ecx = eax）</span></span><br></pre></td></tr></table></figure>
+
+<p>add<br>加法指令</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">add</span> <span class="built_in">eax</span>, <span class="number">2</span>          <span class="comment">; eax = eax + 2</span></span><br><span class="line"><span class="keyword">add</span> <span class="built_in">ebx</span>, <span class="built_in">eax</span>        <span class="comment">; ebx = ebx + eax</span></span><br></pre></td></tr></table></figure>
+
+<p>ret<br>返回指令，类似于C语言中的return，用于函数调用后的返回（后面细说）。</p>
+<h3 id="为啥指令长得这么丑？和我想的不一样？"><a href="#为啥指令长得这么丑？和我想的不一样？" class="headerlink" title="为啥指令长得这么丑？和我想的不一样？"></a>为啥指令长得这么丑？和我想的不一样？</h3><p>首先，CPU里是一坨电路，有的功能对于人来说可能很简单，但是对于想要用电路来实现这个功能的人来说，就不一定简单了。这是需要明白的第一个道理。</p>
+<p>所以啊，这长得丑是有原因的。其中一个原因就是，某些长的漂亮的功能用电路实现起来超级麻烦，所以干脆设计丑一点，反正到时候这些古怪的指令能够组合出我想要的功能，也就足够了。</p>
+<p>所以，汇编语言蛋疼就在这些地方：</p>
+<p>为了迁就电路的设计，很多指令不一定会按照朴素的思维方式去设计<br>需要知道CPU的工作原理，否则都不知道该怎么组织程序<br>程序复杂之后，连我自己都看不懂了，虽然能够运行得到正确的结果<br>…<br>按道理，随着技术的发展，指令应该越来越好看，越来越符合人的思考方式才对啊。然而，世事难料，自从出现了高级语言，多数编程场景下，已经不需要关心指令和寄存器到底长啥样了，这个事情已经由编译器代劳了，99%甚至更多的程序员不需关心寄存器和指令了。所以，长得不好看就算了，反正也没什么人看。</p>
+<p>好了，按照前面的介绍，接下来再继续了解一些东西：</p>
+<h3 id="更多指令、更多寄存器"><a href="#更多指令、更多寄存器" class="headerlink" title="更多指令、更多寄存器"></a>更多指令、更多寄存器</h3><p>sub<br>减法指令（用法和加法指令类似）</p>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">sub</span> <span class="title">eax</span>, 1              </span>; eax = eax - <span class="number">1</span></span><br><span class="line"><span class="function"><span class="keyword">sub</span> <span class="title">eax</span>, <span class="title">ecx</span>            </span>; eax = eax - ecx</span><br></pre></td></tr></table></figure>
+
+<p>乘法和除法、以及更多的运算，这里就不再介绍了，这里的重点是为汇编学习带路。</p>
+<p>更多寄存器<br>除了前面列举的eax、ebx、ecx、edx之外，还有一些寄存器：</p>
+<p>esi<br>edi<br>ebp<br>其中eax、ebx、ecx、edx这四个寄存器是通用寄存器，可以随便存放数据，也能参与到大多数的运算。而余下的三个多见于一些访问内存的场景下，不过，目前，你还是可以随便抓住一个就拿来用的。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>到这里，赶紧根据前面了解的东西，多写几遍吧，加深一下印象。</p>
+<p>前面说的学习汇编没用，是瞎说的。学习汇编有用，后面想起来了再说。</p>
+<p>编辑于 2017-10-19</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2019/10/25/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%B8%80%EF%BC%9A%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87/" rel="next" title="汇编语言入门一：环境准备">
+                  <i class="fa fa-chevron-left"></i> 汇编语言入门一：环境准备
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2019/10/25/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%B8%89%EF%BC%9A%E6%98%AF%E6%97%B6%E5%80%99%E4%B8%8A%E5%86%85%E5%AD%98%E4%BA%86/" rel="prev" title="汇编语言入门三：是时候上内存了">
+                  汇编语言入门三：是时候上内存了 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="comments"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#寄存器是啥玩意儿？"><span class="nav-number">1.</span> <span class="nav-text">寄存器是啥玩意儿？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为啥C语言里没有说这些？"><span class="nav-number">2.</span> <span class="nav-text">为啥C语言里没有说这些？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#那学习汇编语言有用吗？"><span class="nav-number">3.</span> <span class="nav-text">那学习汇编语言有用吗？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#开始一顿乱写"><span class="nav-number">4.</span> <span class="nav-text">开始一顿乱写</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#指令"><span class="nav-number">5.</span> <span class="nav-text">指令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为啥指令长得这么丑？和我想的不一样？"><span class="nav-number">6.</span> <span class="nav-text">为啥指令长得这么丑？和我想的不一样？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#更多指令、更多寄存器"><span class="nav-number">7.</span> <span class="nav-text">更多指令、更多寄存器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">8.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="ljxhb@126.com"
+    src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">ljxhb@126.com</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/nonlee" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;nonlee" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:ljxhb@126.com" title="E-Mail &amp;rarr; mailto:ljxhb@126.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      链接
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://blog.nonlee.com/" title="https:&#x2F;&#x2F;blog.nonlee.com&#x2F;" rel="noopener" target="_blank">github备份</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn/" rel="noopener" target="_blank">蜀ICP备19024594号 </a>
+  </div>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ljxhb@126.com</span>
+
+<!-- 访问统计 速度有点慢，注释-->
+<!--
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="site-uv">&nbsp;
+      <i class="fa fa-eye"></i>
+      访问次数:<span class="busuanzi-value" id="busuanzi_value_site_pv"></span> 次
+    </span>
+-->
+</div>
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script size="120" alpha="0.15" zIndex="-1" src="/lib/canvas-ribbon/canvas-ribbon.js"></script>
+  <script src="/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'RTSsapWxOUV1SKIKT16wFPtB-gzGzoHsz',
+    appKey: 'H9bCb63qalO3BOe07X7SCtHA',
+    placeholder: "说两句吧...",
+    avatar: 'identicon',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: true,
+    lang: '' || 'zh-cn',
+    path: location.pathname,
+    recordIP: true,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>
