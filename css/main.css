@@ -1145,7 +1145,7 @@ pre .javascript .function {
 .sidebar a:hover,
 .sidebar span.exturl:hover {
   border-bottom-color: #eee;
-  color: #0684bd;
+  color: #eee;
 }
 @media (max-width: 991px) {
   .sidebar {
@@ -1210,7 +1210,7 @@ pre .javascript .function {
 }
 .links-of-author a::before,
 .links-of-author span.exturl::before {
-  background: #ffd9ff;
+  background: #e41a74;
   border-radius: 50%;
   content: ' ';
   display: inline-block;
