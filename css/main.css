@@ -878,7 +878,7 @@ pre .javascript .function {
 .pagination .next,
 .pagination .page-number {
   border-bottom: 0;
-  border-top: 1px solid $blcak-deep;
+  border-top: 1px solid #eee;
   transition-property: border-color;
   transition-delay: 0s;
   transition-duration: 0.2s;
@@ -911,7 +911,7 @@ pre .javascript .function {
   .pagination .prev,
   .pagination .next,
   .pagination .page-number {
-    border-bottom: 1px solid $blcak-deep;
+    border-bottom: 1px solid #eee;
     border-top: 0;
     margin-bottom: 10px;
     padding: 0 10px;
@@ -1145,7 +1145,7 @@ pre .javascript .function {
 .sidebar a:hover,
 .sidebar span.exturl:hover {
   border-bottom-color: #eee;
-  color: #eee;
+  color: #0684bd;
 }
 @media (max-width: 991px) {
   .sidebar {
@@ -1210,7 +1210,7 @@ pre .javascript .function {
 }
 .links-of-author a::before,
 .links-of-author span.exturl::before {
-  background: #e41a74;
+  background: #49ff7a;
   border-radius: 50%;
   content: ' ';
   display: inline-block;
