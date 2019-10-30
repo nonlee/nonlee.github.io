@@ -1,20 +1,246 @@
-extends views/main.pug
+<!DOCTYPE html>
+<html lang="zh-CN">
 
-block head
-  title
-    = config.title
 
-block main
-  include mixins/post.pug
-  -var time
-  -site.posts.sort('date', 'desc').each(function(post) {
-    -var year = post.date.year()
-    -if (time != year) {
-      -if (time) {
-        h2.archive-title
-          = year
-      -}
-      -time = year
-    -}
-    +post(post, 'archive')
-  -})
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>
+    工作经验分享
+  </title>
+  <meta name="description" content="">
+  
+  <meta name="author" content="ljxhb@126.com">
+
+  <meta http-equiv="Cache-Control" content="no-transform"/>
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+  <meta name="theme-color" content="#1e2327">
+  <link rel="apple-touch-icon" href="https://github.githubassets.com/apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="https://github.githubassets.com/apple-touch-icon-180x180.png">
+
+  <link rel="icon" type="image/x-icon" href="https://github.githubassets.com/favicon.ico">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet"
+        href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  
+
+  
+
+  <script src="//cdnjs.cloudflare.com/ajax/libs/vue/1.0.25-csp/vue.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js"></script>
+</head>
+
+<body id="replica-app">
+
+<nav class="navbar-wrapper">
+  <div class="navbar">
+    <div class="container clearfix">
+      <a href="/" class="navbar-logo"><i class="fa fa-github"></i></a>
+
+      <div class="navbar-search float-left desktop-only">
+        <div class="navbar-search-form">
+          <label for="gsc-i-id1">This website</label>
+          <div id="google-search">
+            <gcse:search></gcse:search>
+          </div>
+        </div>
+      </div>
+
+      <ul class="navbar-nav float-left">
+        
+        <li><a href="/archives">Archives</a></li>
+        
+        
+        <li><a href="/categories">Categories</a></li>
+        
+        
+        <li><a href="/tags">Tags</a></li>
+        
+        
+        <li class="desktop-only"><a href="/atom.xml" target="_blank">RSS</a></li>
+        
+      </ul>
+
+      <ul class="navbar-nav user-nav float-right desktop-only">
+        <li class="user-nav-notification">
+          <a><span class="user-nav-unread"></span><i class="fa fa-bell"></i></a>
+        </li>
+        <li>
+          <a><i class="fa fa-plus"></i> <i class="fa fa-caret-down"></i></a>
+        </li>
+        <li class="user-nav-logo">
+          <a><img src="https://octodex.github.com/images/baracktocat.jpg"> <i class="fa fa-caret-down"></i></i></a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="main-container">
+  
+
+<div class="container-lg">
+  
+
+<div class="blog-intro">
+  <div class="blog-intro-user">
+    <img class="avatar" src="https://octodex.github.com/images/baracktocat.jpg">
+    <div class="user-name">
+      <div class="blog-title">工作经验分享</div>
+      <div class="blog-author">ljxhb@126.com</div>
+        <ul class="user-detail mobile-only">
+    
+    <li>
+      <i class="fa fa-link"></i>
+      <a href="http://yoursite.com">http://yoursite.com</a>
+    </li>
+  </ul>
+    </div>
+    <div class="blog-description">
+      
+    </div>
+  </div>
+
+  <ul class="user-detail desktop-only">
+    
+    <li>
+      <i class="fa fa-link"></i>
+      <a href="http://yoursite.com">http://yoursite.com</a>
+    </li>
+  </ul>
+
+  <div class="social-media desktop-only">
+    <h4>Social Media</h4>
+    <ul>
+      
+    </ul>
+  </div>
+</div>
+
+
+  <div class="blog-detail">
+    
+<nav class="blog-detail-nav desktop-only">
+  <ul class="clearfix">
+    <li class="">
+      <a href="/">Overview</a></li>
+    <li class="selected">
+      <a href="/archives">Posts <span class="counter">3</span></a>
+    </li>
+    <li class="">
+      <a href="/categories">Categories <span
+                class="counter">1</span></a></li>
+    <li class="">
+      <a href="/tags">Tags <span class="counter">0</span></a></li>
+  </ul>
+</nav>
+
+    <div class="body-secondary">
+      <ul class="archive-list">
+        
+        <li class="archive-list-item">
+          <h2><a href="/2019/10/25/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%B8%89%EF%BC%9A%E6%98%AF%E6%97%B6%E5%80%99%E4%B8%8A%E5%86%85%E5%AD%98%E4%BA%86/">汇编语言入门三：是时候上内存了</a></h2>
+          <p>
+              原文链接  
+ 上回说到了寄存器和指令，这回说下内存访问。开始之前，先来复习一下。 
+   回顾    寄存器  寄存器是在CPU里面 寄存器的存储空间很小 寄存器存放的是CPU马上要处理的数据或者刚处理出的结果（还是热乎的） 
+  
+   指令  传送数据用的指令mov 做加法用的指令add ...
+          </p>
+          <ul class="tag-list clearfix">
+            
+          </ul>
+          <div class="post-info">
+            <span>
+              
+              <a class="category-link" href="/categories/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80/"><i class="fa fa-folder-open"></i> 汇编语言</a>
+              
+            </span>
+            <span><i class="fa fa-tag"></i> 0 </span>
+            <span>Published {{moment(1572012534000).fromNow()}}</span>
+          </div>
+        </li>
+        
+        <li class="archive-list-item">
+          <h2><a href="/2019/10/25/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%BA%8C%EF%BC%9A%E7%8E%AF%E5%A2%83%E6%9C%89%E4%BA%86%E5%85%88%E8%BF%87%E6%8A%8A%E7%98%BE/">汇编语言入门二：环境有了先过把瘾</a></h2>
+          <p>
+              原文链接  
+ 上回说到，咱们把环境搭好了，可以开始玩耍汇编了。 
+   寄存器是啥玩意儿？  开始学C的时候，有没有一种感觉，变量？类型？我可是要改变世界的男人，怎么就成天在跟i++较劲啊？这黑框程序还只能用来算数学，跟说好的不一样呢？？？想必后来，见得多了，你的想法也不那么幼稚了吧。 
+  ...
+          </p>
+          <ul class="tag-list clearfix">
+            
+          </ul>
+          <div class="post-info">
+            <span>
+              
+              <a class="category-link" href="/categories/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80/"><i class="fa fa-folder-open"></i> 汇编语言</a>
+              
+            </span>
+            <span><i class="fa fa-tag"></i> 0 </span>
+            <span>Published {{moment(1572011723000).fromNow()}}</span>
+          </div>
+        </li>
+        
+        <li class="archive-list-item">
+          <h2><a href="/2019/10/25/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%B8%80%EF%BC%9A%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87/">汇编语言入门一：环境准备</a></h2>
+          <p>
+              原文链接  
+ 现阶段，找个方便好使的编程环境还是比较蛋疼的，对于部分想过瘾或者想从学习实践中学习的小伙伴来说，略显蛋疼。不过，仔细琢磨，还是能够自己折腾出一个好用的环境来的。开搞。 
+  
+
+   环境  Ubuntu 
+ gcc/nasm 
+ 也就是说，你先安装一个能正常使用的Ubuntu再...
+          </p>
+          <ul class="tag-list clearfix">
+            
+          </ul>
+          <div class="post-info">
+            <span>
+              
+              <a class="category-link" href="/categories/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80/"><i class="fa fa-folder-open"></i> 汇编语言</a>
+              
+            </span>
+            <span><i class="fa fa-tag"></i> 0 </span>
+            <span>Published {{moment(1572008123000).fromNow()}}</span>
+          </div>
+        </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<div class="footer-wrapper container">
+  <footer class="footer clearfix">
+    <div class="clearfix">
+    <a href="http://yoursite.com" class="footer-logo">
+      <i class="fa fa-github"></i>
+    </a>
+    <ul class="footer-social-link">
+      <li>© 2019 ljxhb@126.com</li>
+      <li><a href="http://yoursite.com">Home</a></li>
+      
+    </ul>
+    <div class="footer-theme-info">
+      Theme <a href="//github.com/sabrinaluo/hexo-theme-replica">Replica</a>
+      by <a href="//github.com/sabrinaluo">Hiitea</a> ❤ Powered by Hexo
+    </div>
+    </div>
+    
+  </footer>
+</div>
+
+
+
+
+<script src="/js/main.js"></script>
+
+</body>
+</html>
