@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon-64.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.ico">
+  <link rel="mask-icon" href="/images/favicon-64.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-bounce.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.4.2',
+    exturl: false,
+    sidebar: {"position":"left","display":"hide","offset":12,"onmobile":true},
+    copycode: {"enable":true,"show_result":true,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":-1,"unescape":true,"preload":true},
+    path: 'search.xml',
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":null}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="原文链接 最近忙了一阵，好几天没更了，不好意思，我来晚了。 转入正题，当在汇编中进行函数调用，是一种什么样的体验？ 想象想象你在计算一个非常复杂的数学题，在算到一半的时候，你需要一个数据，而这个数据需要套用一个比较复杂的公式才能算出来，怎么办？ 你不得不把手中的事情停下来，先去套公式、代入数值然后…最后，算出结果来了。 这时候你继续开始攻克这个困难题目的剩下部分。 用脑子想刚刚说的这个过程，可能有">
+<meta name="keywords" content="编程 发呆">
+<meta property="og:type" content="article">
+<meta property="og:title" content="汇编语言入门七：函数调用（一）">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;10&#x2F;31&#x2F;%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%B8%83%EF%BC%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%EF%BC%88%E4%B8%80%EF%BC%89&#x2F;index.html">
+<meta property="og:site_name" content="nonlee - 工作经验分享">
+<meta property="og:description" content="原文链接 最近忙了一阵，好几天没更了，不好意思，我来晚了。 转入正题，当在汇编中进行函数调用，是一种什么样的体验？ 想象想象你在计算一个非常复杂的数学题，在算到一半的时候，你需要一个数据，而这个数据需要套用一个比较复杂的公式才能算出来，怎么办？ 你不得不把手中的事情停下来，先去套公式、代入数值然后…最后，算出结果来了。 这时候你继续开始攻克这个困难题目的剩下部分。 用脑子想刚刚说的这个过程，可能有">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-10-31T15:41:31.000Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%B8%83%EF%BC%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%EF%BC%88%E4%B8%80%EF%BC%89/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>汇编语言入门七：函数调用（一） | nonlee - 工作经验分享</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+<!--    <span class="site-title">nonlee - 工作经验分享</span> -->
+        <span class="site-title">nonlee.com</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%B8%83%EF%BC%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%EF%BC%88%E4%B8%80%EF%BC%89/">
+    
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="ljxhb@126.com">
+      <meta itemprop="description" content="记录生活的点点滴滴">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="nonlee - 工作经验分享">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          汇编语言入门七：函数调用（一）
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-10-31 23:25:31" itemprop="dateCreated datePublished" datetime="2019-10-31T23:25:31+08:00">2019-10-31</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index">
+                    <span itemprop="name">汇编语言</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%B8%83%EF%BC%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%EF%BC%88%E4%B8%80%EF%BC%89/" class="post-meta-item leancloud_visitors" data-flag-title="汇编语言入门七：函数调用（一）" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">评论数：</span>
+    
+    <a title="valine" href="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%B8%83%EF%BC%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%EF%BC%88%E4%B8%80%EF%BC%89/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%B8%83%EF%BC%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%EF%BC%88%E4%B8%80%EF%BC%89/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="https://zhuanlan.zhihu.com/p/24129384" target="_blank" rel="noopener" title="原文链接">原文链接</a></p>
+<p>最近忙了一阵，好几天没更了，不好意思，我来晚了。</p>
+<p>转入正题，当在汇编中进行函数调用，是一种什么样的体验？</p>
+<h3 id="想象"><a href="#想象" class="headerlink" title="想象"></a>想象</h3><p>想象你在计算一个非常复杂的数学题，在算到一半的时候，你需要一个数据，而这个数据需要套用一个比较复杂的公式才能算出来，怎么办？</p>
+<p>你不得不把手中的事情停下来，先去套公式、代入数值然后…最后，算出结果来了。</p>
+<p>这时候你继续开始攻克这个困难题目的剩下部分。</p>
+<h3 id="用脑子想"><a href="#用脑子想" class="headerlink" title="用脑子想"></a>用脑子想</h3><p>刚刚说的这个过程，可能有点小问题，尤其是对脑子不太好使的人来说。想象你做题目做到一半的时候，记忆力已经有点不好使了，中间突然停下来去算一个复杂的公式，然后回来，诶？我刚刚算到哪了？我刚刚想到哪了？我刚刚算了些什么结果？</p>
+<p>在你工作切换的时候，很容易回头来就忘记了刚刚做的部分事情。这时候，为了保证你套完复杂的公式，把结果拿回来继续算题目的时候不会出差错，你需要把刚才计算题目过程中的关键信息写在纸上。</p>
+<h3 id="用CPU想"><a href="#用CPU想" class="headerlink" title="用CPU想"></a>用CPU想</h3><p>刚刚去套用一个复杂的公式计算某个数据的情景，就类似在计算机里进行函数调用的情景。</p>
+<p>程序需要一个结果，这个结果需要通过一个比较复杂的过程进行计算。这时候，编程人员会考虑将这个独立的复杂过程提取为单独的函数。</p>
+<p>而在发生函数调用的时候，CPU就像是先暂停当前所做的事情，转去做那个复杂的计算，算完了之后又跳回来继续整个计算。就像你做题的过程中去套了一个公式计算数据一样。</p>
+<p>但是在去套用公式之前，你需要做一些准备。首先，默默记下现在这个题目算到哪一步了，一会套完公式回来接着做；默默记下现在计算出来的一些结果，一会可能还会用到；套用公式需要些什么数据，先记下来，代公式的时候直接代入计算，算出来的结果也需要记在脑子里，回头需要使用。</p>
+<p>在CPU里面，也需要这几个过程。</p>
+<p>第一个，记下自己现在做事情做到哪里了，一会儿套完公式回来接着做，这也就是CPU在进行函数调用时的现场保存操作，CPU也需要记下自己当前执行到哪里了。</p>
+<p>默默记下一些在套用公式的时候需要用到的数据，然后去套公式了。这也就是程序中在调用函数的时候进行参数传递的过程。</p>
+<p>然后开始执行函数，等函数执行完了，就需要把结果记下来，回去继续刚才要用到数据的那个地方继续算。这也就是函数调用后返回的动作，这个记下的结果就是返回值。</p>
+<h3 id="开撸"><a href="#开撸" class="headerlink" title="开撸"></a>开撸</h3><p>说了那么多故事，那么函数调用要干些啥应该就说清楚了。总结一下大概就这么几个事：</p>
+<p>保存现场（一会好回来接着做）<br>传递参数（可选，套公式的时候需要些什么数据）<br>返回（把计算结果带回来，接着刚才的事）<br>到这里，我们先来一个事例代码，就着代码去发现函数调用中的套路：</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">global</span> main</span><br><span class="line"></span><br><span class="line"><span class="symbol">eax_plus_1s:</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">ret</span></span><br><span class="line"></span><br><span class="line"><span class="symbol">ebx_plus_1s:</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">ebx</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">ret</span></span><br><span class="line"></span><br><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, <span class="number">0</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">ebx</span>, <span class="number">0</span></span><br><span class="line">    <span class="keyword">call</span> eax_plus_1s</span><br><span class="line">    <span class="keyword">call</span> eax_plus_1s</span><br><span class="line">    <span class="keyword">call</span> ebx_plus_1s</span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="built_in">ebx</span></span><br><span class="line">    <span class="keyword">ret</span></span><br></pre></td></tr></table></figure>
+
+<p>首先，运行程序，得到结果：3。</p>
+<p>上面的代码其实也比较简单，先从主干main这个地方梳理：</p>
+<ol>
+<li>让eax和ebx的值都为0</li>
+<li>调用eax_plus_1s，再调用eax_plus_1s</li>
+<li>调用ebx_plus_1s</li>
+<li>执行eax = eax + ebx</li>
+</ol>
+<p>上述的两个函数也非常简单，分别就是给eax和ebx加了1。所以，这个程序其实也就是换了个花样给寄存器增加1而已，纯粹演示。</p>
+<p>这里出现了一个陌生指令call，这个指令是函数调用专用的指令，从程序的行为上看应该是让程序的执行流程发生跳转。前面说到了跳转指令jmp，这里是call，这两个指令都能让CPU的eip寄存器发生突然变化，然后程序就一下子跳到别的地方去了。但是这两个有区别：</p>
+<p>很简单，jmp跳过去了就不知道怎么回来了，而通过call这种方式跳过去后，是可以通过ret指令直接回来的</p>
+<p>那这是怎么做到的呢？</p>
+<p>其实，在call指令执行的时候，CPU进行跳转之前还要做一个事情，就是把eip保存起来，然后往目标处跳。当遇到ret指令的时候，就把上一次call保存起来的eip恢复回来，我们知道eip直接决定了CPU会执行哪里的代码，当eip恢复的时候，就意味着程序又会到之前的位置了。</p>
+<p>一个程序免不了有很多次call，那这些eip的值都是保存到哪里的呢？</p>
+<p>有一个地方叫做“栈(stack)”，是程序启动之前，由操作系统指定的一片内存区域，每一次函数调用后的返回地址都存放在栈里面</p>
+<p>好了，我们到这里，就明白了函数调用大概是怎么回事了。总结起来就是：</p>
+<p>本质上也是跳转，但是跳到目标位置之前，需要保存“现在在哪里”的这个信息，也就是eip<br>整个过程由一条指令call完成<br>后面可以用ret指令跳转回来<br>call指令保存eip的地方叫做栈，在内存里，ret指令执行的时候是直接取出栈中保存的eip值，并恢复回去达到返回的效果<br>何为栈？<br>前面说到call指令会先保存eip的值到栈里面，然后就跳转到目标函数中去了。</p>
+<p>这都好说，但是，如果是我在函数里面调用了一个函数，在这个函数里面又调用了一个函数，这个eip是怎么保存来保证每一次都能正确的跳回来呢？</p>
+<p>好的，这个问题才是关键，这也说到了栈这样一个东西，我们先来设想一些场景，结合实际代码理解一下CPU所对应的栈。</p>
+<p>首先，这个栈和数据结构中的栈是不一样的。数据结构中的栈是通过编程语言来形成程序执行逻辑上的栈。而这里的栈，是CPU内硬件实现的栈。当然了，两者在逻辑上都差不多的。</p>
+<p>在这里，先回想一下数据结构中基于数组实现的栈。里面最关键的就是需要一个栈顶指针（或者是一个索引、下标），每次放东西入栈，就将指针后移，每一次从栈中取出东西来，就将指针前移。</p>
+<p>到这里，我们先从逻辑上分析下CPU在发生函数调用的过程中是如何使用栈的。</p>
+<p>假设现在程序处在一个叫做level1的位置，并调用了函数A，在调用的跳转发生之前，会将当前的eip保存起来，这时候，栈里面就是这样的：</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="bullet">----------    </span>&lt;=   top</span><br><span class="line"><span class="code">  level1</span></span><br><span class="line">----------</span><br></pre></td></tr></table></figure>
+
+<p>现在，程序处在level2的位置，又调用了函数B，同样，也会保存这次的eip进去：</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="bullet">----------    </span>&lt;=   top</span><br><span class="line"><span class="code">  level2</span></span><br><span class="line">----------</span><br><span class="line"><span class="code">  level1</span></span><br><span class="line">----------</span><br></pre></td></tr></table></figure>
+
+<p>再来，程序这次处在level3，调用了C函数，这时候，整个栈就是这样的：</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="bullet">----------    </span>&lt;=   top</span><br><span class="line"><span class="code">  level3</span></span><br><span class="line">----------</span><br><span class="line"><span class="code">  level2</span></span><br><span class="line">----------</span><br><span class="line"><span class="code">  level1</span></span><br><span class="line">----------</span><br></pre></td></tr></table></figure>
+
+<p>好了，这下程序执行到了ret，会发生什么事，是不是就回到level3了？在level3中再次执行ret，是不是就回到level2了？以此类推，最终，程序就能做到一层层的函数调用和返回了。</p>
+<h3 id="实际的CPU中"><a href="#实际的CPU中" class="headerlink" title="实际的CPU中"></a>实际的CPU中</h3><p>在实际的CPU中，上述的栈顶top也是由一个寄存器来记录的，这个寄存器叫做</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">esp</span><span class="params">(stack pointer)</span></span></span><br></pre></td></tr></table></figure>
+<p>每次执行call指令的时候。</p>
+<p>这里还有一个小细节，在x86的环境下，栈是朝着低地址的方向伸长的。什么意思呢？每一次有东西入栈，那么栈顶指针就会递减一个单位，每一次出栈，栈顶指针就会相应地增加一个单位（和数据结构中一般的做法是相反的）。至于为什么会这样，我也不知道。</p>
+<p>eip在入栈的时候，大致就相当于执行了这样一些指令：</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">sub</span> <span class="built_in">esp</span>, <span class="number">4</span></span><br><span class="line"><span class="keyword">mov</span> <span class="built_in">dword</span> <span class="built_in">ptr</span>[<span class="built_in">esp</span>], <span class="built_in">eip</span></span><br></pre></td></tr></table></figure>
+
+<p>翻译为C语言就是（假如esp是一个void*类型的指针）：</p>
+<figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">esp = (<span class="name">void*</span>)( ((<span class="name">unsigned</span> int)esp) - <span class="number">4</span> )</span><br><span class="line">*( (<span class="name">unsigned</span> int*) esp ) = (<span class="name">unsigned</span> int) eip</span><br></pre></td></tr></table></figure>
+
+<p>也就是esp先移动，然后再把eip的值写入到esp指向的内存中。那么，ret执行的时候该干什么，也就非常的清楚了吧。无非就是上述过程的逆过程。</p>
+<p>同时，eip寄存器的长度为32位，即4字节，所以每一次入栈出栈的单位大小都是4字节。</p>
+<h3 id="动手"><a href="#动手" class="headerlink" title="动手"></a>动手</h3><p>没有代码，说个锤子。先来一个简单的程序：</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">global</span> main</span><br><span class="line"></span><br><span class="line"><span class="symbol">eax_plus_1s:</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">ret</span></span><br><span class="line"></span><br><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, <span class="number">0</span></span><br><span class="line">    <span class="keyword">call</span> eax_plus_1s</span><br><span class="line">    <span class="keyword">ret</span></span><br></pre></td></tr></table></figure>
+
+<p>这个程序中只有一个函数调用，但不影响我们分析。先编译，得到一个可执行文件，这里先起名为plsone。</p>
+<p>然后载入gdb进行调试，进行反汇编：</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ gdb ./plsone</span><br><span class="line">(gdb) disas main</span><br><span class="line">Dump of assembler code for function main:</span><br><span class="line">   <span class="number">0x080483f4</span> &lt;+<span class="number">0</span>&gt;: <span class="keyword">mov</span>    <span class="number">$0</span>x0,%eax</span><br><span class="line">   <span class="number">0x080483f9</span> &lt;+<span class="number">5</span>&gt;: <span class="keyword">call</span>   <span class="number">0x80483f0</span> &lt;eax_plus_1s&gt;</span><br><span class="line">   <span class="number">0x080483fe</span> &lt;+<span class="number">10</span>&gt;:    <span class="keyword">ret</span>    </span><br><span class="line">   <span class="number">0x080483ff</span> &lt;+<span class="number">11</span>&gt;:    <span class="keyword">nop</span></span><br><span class="line">End of assembler dump.</span><br></pre></td></tr></table></figure>
+
+<p>好了，找到反汇编中&lt;+5&gt;所在那一行，对应着的指令是call 0x80483f0，这个指令的地址为：0x080483f9（不同的环境有所不同，根据实际情况来）。按照套路，在这个call指令处打下一个断点，然后运行程序。</p>
+<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">(gdb) b *<span class="number">0x080483f9</span> </span><br><span class="line">Breakpoint <span class="number">1</span> at <span class="number">0x80483f9</span></span><br><span class="line">(gdb) run</span><br><span class="line">Starting program: /home/vagrant/code/asm/<span class="number">07</span>/plsone </span><br><span class="line"></span><br><span class="line">Breakpoint <span class="number">1</span>, <span class="number">0x080483f9</span> <span class="keyword">in</span> main ()</span><br><span class="line">(gdb)</span><br></pre></td></tr></table></figure>
+
+<p>好了，程序执行到断点处，停下来了。再来看反汇编，这次有一个小箭头指向当前的断点了：</p>
+<figure class="highlight excel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">(gdb) disas main</span><br><span class="line">Dump of assembler <span class="built_in">code</span> for function ma<span class="symbol">in:</span></span><br><span class="line">   <span class="number">0</span>x080483f4 &lt;+<span class="number">0</span>&gt;<span class="symbol">:</span> mov    $<span class="number">0</span>x0,%eax</span><br><span class="line">=&gt; <span class="number">0</span>x080483f9 &lt;+<span class="number">5</span>&gt;<span class="symbol">:</span> <span class="built_in">call</span>   <span class="number">0</span>x80483f0 &lt;eax_plus_1s&gt;</span><br><span class="line">   <span class="number">0</span>x080483fe &lt;+<span class="number">10</span>&gt;<span class="symbol">:</span>    ret    </span><br><span class="line">   <span class="number">0</span>x080483ff &lt;+<span class="number">11</span>&gt;<span class="symbol">:</span>    nop</span><br><span class="line">End of assembler dump.</span><br></pre></td></tr></table></figure>
+
+<p>接下来，做这样一个事情，看看现在eip的值是多少：</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(gdb) info register <span class="built_in">eip</span></span><br><span class="line"><span class="built_in">eip</span>            <span class="number">0x80483f9</span>    <span class="number">0x80483f9</span> &lt;main+<span class="number">5</span>&gt;</span><br></pre></td></tr></table></figure>
+
+<p>正好指向这个函数调用指令。这里的call指令还没执行，现在的CPU处在上一条指令刚执行完毕的状态。前面说过，CPU中的eip总是指向下一条会执行的指令。在这里，珍惜机会，我们把想看的东西全都看个遍吧：</p>
+<p>esp的值，这个很关键</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(gdb) info register <span class="built_in">esp</span></span><br><span class="line"><span class="built_in">esp</span>            <span class="number">0xffffd6ec</span>   <span class="number">0xffffd6ec</span></span><br></pre></td></tr></table></figure>
+
+<p>esp所指向的栈顶的东西</p>
+<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(gdb) p/x *(unsigned <span class="built_in">int</span>*)$esp</span><br><span class="line">$<span class="number">1</span> = <span class="number">0xf7e40ad3</span></span><br></pre></td></tr></table></figure>
+
+<p>该看的都看过了，让程序走吧，让它先执行完了call指令，我们再回头看看什么情况：</p>
+<figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(<span class="name">gdb</span>) stepi</span><br><span class="line"><span class="number">0</span>x080483f0 in eax_plus_1s ()</span><br></pre></td></tr></table></figure>
+
+<p>根据提示，程序现在已经执行到函数里面去了。可以直接反汇编看看：</p>
+<figure class="highlight excel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">(gdb) disas</span><br><span class="line">Dump of assembler <span class="built_in">code</span> for function eax_plus_1<span class="symbol">s:</span></span><br><span class="line">=&gt; <span class="number">0</span>x080483f0 &lt;+<span class="number">0</span>&gt;<span class="symbol">:</span> add    $<span class="number">0</span>x1,%eax</span><br><span class="line">   <span class="number">0</span>x080483f3 &lt;+<span class="number">3</span>&gt;<span class="symbol">:</span> ret    </span><br><span class="line">End of assembler dump.</span><br></pre></td></tr></table></figure>
+
+<p>现在正等着执行那条加法指令呢。别急，现在函数调用已经发生了，再来看看上面我们看过的一些东西：</p>
+<p>esp的值，这个很关键</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(gdb) info register <span class="built_in">esp</span></span><br><span class="line"><span class="built_in">esp</span>            <span class="number">0xffffd6e8</span>   <span class="number">0xffffd6e8</span></span><br></pre></td></tr></table></figure>
+
+<p>看到了，上次查看esp的时候是0xffffd6ec，进入函数后的esp值是0xffffd6e8。少了个4。</p>
+<p>实际上这就是eip被保存到栈里去了，CPU的栈的伸长方向是朝着低地址一侧的，所以每次入栈，esp都会减少一个单位，也就是4。</p>
+<p>esp所指向的栈顶的东西</p>
+<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(gdb) p/x *(unsigned <span class="built_in">int</span>*)$esp</span><br><span class="line">$<span class="number">2</span> = <span class="number">0x80483fe</span></span><br></pre></td></tr></table></figure>
+
+<p>这次，我们看看栈顶到底是个什么东西，打印出来0x80483fe这么一个玩意儿，这是蛤玩意儿？别急，回头看看main函数的反汇编：</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">(gdb) disas main</span><br><span class="line">Dump of assembler code for function main:</span><br><span class="line">   <span class="number">0x080483f4</span> &lt;+<span class="number">0</span>&gt;: <span class="keyword">mov</span>    <span class="number">$0</span>x0,%eax</span><br><span class="line">   <span class="number">0x080483f9</span> &lt;+<span class="number">5</span>&gt;: <span class="keyword">call</span>   <span class="number">0x80483f0</span> &lt;eax_plus_1s&gt;</span><br><span class="line">   <span class="number">0x080483fe</span> &lt;+<span class="number">10</span>&gt;:    <span class="keyword">ret</span>    </span><br><span class="line">   <span class="number">0x080483ff</span> &lt;+<span class="number">11</span>&gt;:    <span class="keyword">nop</span></span><br><span class="line">End of assembler dump.</span><br></pre></td></tr></table></figure>
+
+<p>在里面找找0x80483fe呢？刚好在&lt;+10&gt;所在的那一行。这不就是函数调用指令处的后一条指令吗？</p>
+<p>对的，也就是说，一会函数返回的时候，就会到&lt;+10&gt;这个地方来。也就是在执行了eax_plus_1s函数里的ret之后。</p>
+<p>是不是和前面描述的过程一模一样？</p>
+<p>好了，到这里，探究汇编中的函数调用的过程和方法基本就有了，读者可以根据需要自行编写更加奇怪的代码，结合gdb，来探究更多你自己所好奇的东西。</p>
+<p>附加一个代码，自己玩耍试试（在自己的环境中玩耍哦）：</p>
+<figure class="highlight avrasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">global main</span><br><span class="line"></span><br><span class="line"><span class="symbol">hahaha:</span></span><br><span class="line">    <span class="keyword">call</span> hehehe</span><br><span class="line">    <span class="keyword">ret</span></span><br><span class="line"></span><br><span class="line"><span class="symbol">hehehe:</span></span><br><span class="line">    <span class="keyword">call</span> hahaha</span><br><span class="line">    <span class="keyword">ret</span></span><br><span class="line"></span><br><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="keyword">call</span> hahaha</span><br><span class="line">    <span class="keyword">ret</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>这回，我们说到这样一些东西：</p>
+<p>汇编中发生函数调用相关的指令call和ret<br>call指令会产生跳转动作，与jmp不同的是，call之后可以通过ret指令跳回来<br>call和ret的配合是依靠保存eip的值到栈里，返回时恢复eip实现的<br>esp记录着当前栈顶所在的位置，每次call和ret执行都会伴随着入栈和出栈，也就是esp会发生变化<br>函数调用最基本的”跳转“和”返回“就这么回事了，下回咱们继续分析”函数调用中的参数传递、返回值和状态“相关的问题。</p>
+<p>文中若有疏漏或是不当之处，欢迎指正。</p>
+<p>发布于 2016-12-02</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%85%AD%EF%BC%9A%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6%EF%BC%88%E4%BA%8C%EF%BC%89/" rel="next" title="汇编语言入门六：流程控制（二）">
+                  <i class="fa fa-chevron-left"></i> 汇编语言入门六：流程控制（二）
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%85%AB%EF%BC%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89/" rel="prev" title="汇编语言入门八：函数调用（二）">
+                  汇编语言入门八：函数调用（二） <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="comments"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#想象"><span class="nav-number">1.</span> <span class="nav-text">想象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#用脑子想"><span class="nav-number">2.</span> <span class="nav-text">用脑子想</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#用CPU想"><span class="nav-number">3.</span> <span class="nav-text">用CPU想</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#开撸"><span class="nav-number">4.</span> <span class="nav-text">开撸</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实际的CPU中"><span class="nav-number">5.</span> <span class="nav-text">实际的CPU中</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#动手"><span class="nav-number">6.</span> <span class="nav-text">动手</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="ljxhb@126.com"
+    src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">ljxhb@126.com</p>
+  <div class="site-description" itemprop="description">记录生活的点点滴滴</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/nonlee" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;nonlee" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:ljxhb@126.com" title="E-Mail &amp;rarr; mailto:ljxhb@126.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      链接
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://blog.nonlee.com/" title="https:&#x2F;&#x2F;blog.nonlee.com&#x2F;" rel="noopener" target="_blank">github备份</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn/" rel="noopener" target="_blank">蜀ICP备19024594号 </a>
+  </div>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ljxhb@126.com</span>
+
+<!-- 访问统计 速度有点慢，注释-->
+<!--
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="site-uv">&nbsp;
+      <i class="fa fa-eye"></i>
+      访问次数:<span class="busuanzi-value" id="busuanzi_value_site_pv"></span> 次
+    </span>
+-->
+</div>
+
+
+        
+
+
+
+
+
+
+
+
+
+
+  <script>
+    var _mtac = {};
+    (function() {
+      var mta = document.createElement("script");
+      mta.src = "https://pingjs.qq.com/h5/stats.js";
+      mta.setAttribute("name", "MTAH5");
+      mta.setAttribute("sid", "500701487");
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(mta, s);
+    })();
+  </script>
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script size="120" alpha="0.15" zIndex="-1" src="/lib/canvas-ribbon/canvas-ribbon.js"></script>
+  <script src="/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'RTSsapWxOUV1SKIKT16wFPtB-gzGzoHsz',
+    appKey: 'H9bCb63qalO3BOe07X7SCtHA',
+    placeholder: "说两句吧...",
+    avatar: 'identicon',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: true,
+    lang: '' || 'zh-cn',
+    path: location.pathname,
+    recordIP: true,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>

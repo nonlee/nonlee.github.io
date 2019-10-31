@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon-64.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.ico">
+  <link rel="mask-icon" href="/images/favicon-64.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-bounce.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.4.2',
+    exturl: false,
+    sidebar: {"position":"left","display":"hide","offset":12,"onmobile":true},
+    copycode: {"enable":true,"show_result":true,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":-1,"unescape":true,"preload":true},
+    path: 'search.xml',
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":null}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="原文链接 回顾前面说到在汇编语言中实现类似C语言if-else if-else这样的结构， 实际上，在汇编里面，我们并不关心if了，取而代之的是两种基本的指令：  比较 跳转  这两种指令即可组成最基本的分支程序结构，虽然跳转指令非常多，但是我们已经有套路了，怎么跳转都不怕了。当然，在编程环境中仅有分支还不够的，我们知道C语言中除了分支结构之外，还有循环这个最基本也是最常用的形式。正好，这也是本节">
+<meta name="keywords" content="编程 发呆">
+<meta property="og:type" content="article">
+<meta property="og:title" content="汇编语言入门六：流程控制（二）">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;10&#x2F;31&#x2F;%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%85%AD%EF%BC%9A%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6%EF%BC%88%E4%BA%8C%EF%BC%89&#x2F;index.html">
+<meta property="og:site_name" content="nonlee - 工作经验分享">
+<meta property="og:description" content="原文链接 回顾前面说到在汇编语言中实现类似C语言if-else if-else这样的结构， 实际上，在汇编里面，我们并不关心if了，取而代之的是两种基本的指令：  比较 跳转  这两种指令即可组成最基本的分支程序结构，虽然跳转指令非常多，但是我们已经有套路了，怎么跳转都不怕了。当然，在编程环境中仅有分支还不够的，我们知道C语言中除了分支结构之外，还有循环这个最基本也是最常用的形式。正好，这也是本节">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-10-31T15:39:57.000Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%85%AD%EF%BC%9A%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6%EF%BC%88%E4%BA%8C%EF%BC%89/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>汇编语言入门六：流程控制（二） | nonlee - 工作经验分享</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+<!--    <span class="site-title">nonlee - 工作经验分享</span> -->
+        <span class="site-title">nonlee.com</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%85%AD%EF%BC%9A%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6%EF%BC%88%E4%BA%8C%EF%BC%89/">
+    
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="ljxhb@126.com">
+      <meta itemprop="description" content="记录生活的点点滴滴">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="nonlee - 工作经验分享">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          汇编语言入门六：流程控制（二）
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-10-31 23:24:53" itemprop="dateCreated datePublished" datetime="2019-10-31T23:24:53+08:00">2019-10-31</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index">
+                    <span itemprop="name">汇编语言</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%85%AD%EF%BC%9A%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6%EF%BC%88%E4%BA%8C%EF%BC%89/" class="post-meta-item leancloud_visitors" data-flag-title="汇编语言入门六：流程控制（二）" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">评论数：</span>
+    
+    <a title="valine" href="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%85%AD%EF%BC%9A%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6%EF%BC%88%E4%BA%8C%EF%BC%89/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%85%AD%EF%BC%9A%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6%EF%BC%88%E4%BA%8C%EF%BC%89/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="https://zhuanlan.zhihu.com/p/23902265" target="_blank" rel="noopener" title="原文链接">原文链接</a></p>
+<h3 id="回顾"><a href="#回顾" class="headerlink" title="回顾"></a>回顾</h3><p>前面说到在汇编语言中实现类似C语言if-else if-else这样的结构，</p>
+<p>实际上，在汇编里面，我们并不关心if了，取而代之的是两种基本的指令：</p>
+<ul>
+<li>比较</li>
+<li>跳转</li>
+</ul>
+<p>这两种指令即可组成最基本的分支程序结构，虽然跳转指令非常多，但是我们已经有套路了，怎么跳转都不怕了。当然，在编程环境中仅有分支还不够的，我们知道C语言中除了分支结构之外，还有循环这个最基本也是最常用的形式。正好，这也是本节话题的主角。</p>
+<p>文中涉及一些汇编代码，建议读者自行编程，通过动手实践来加深对程序的理解。</p>
+<h3 id="拆散循环结构"><a href="#拆散循环结构" class="headerlink" title="拆散循环结构"></a>拆散循环结构</h3><p>上回说到C语言中if这样的结构，在汇编里对应的是怎么回事，实质上，这就是分支结构的程序在汇编里的表现形式。</p>
+<p>实际上，循环结构相比分支结构，本质上，没有多少变化，仅仅是比较合跳转指令的组合的方式与顺序有所不同，所以形成了循环。</p>
+<p>当然，这个说法可能稍微拗口了一点。说得简单一点，循环的一个关键特点就是：</p>
+<ul>
+<li>程序在往回跳转</li>
+</ul>
+<p>细细想，好像有道理哦，如果程序每到一个位置就往前跳转，那就是死循环，如果是在这个位置根据条件决定是否要向前跳转，那就是有条件的循环了。</p>
+<p>口说无凭，还是先来分析一下一个C语言的while循环：</p>
+<p>(Talk is chip, show your code!)</p>
+<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">int</span> sum = <span class="number">0</span>;</span><br><span class="line"><span class="built_in">int</span> i = <span class="number">1</span>;</span><br><span class="line"><span class="keyword">while</span>( i &lt;= <span class="number">10</span> ) &#123;</span><br><span class="line">    sum = sum + i;</span><br><span class="line">    i = i + <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>想必这段程序多数人都非常熟悉了，当年自己第一次学习循环的时候就碰到这个题目，脑子短路了，心里总想着这不就是一个等差数列公式么，题目却强行出现在循环一章的后面，最后结果让人大跌眼睛，这是要我老老实实像SHAB一样去加啊。</p>
+<p>跑题了，先大致总结一下这个程序的关键部分到底在干什么：</p>
+<ul>
+<li>1 比较i和10的大小</li>
+<li>2 如果i &lt;= 10则执行代码块，并回到(1)</li>
+<li>3 如果不满足 i &lt;= 10，则跳过代码块</li>
+</ul>
+<p>好了，按照这个逻辑，在C语言中不使用循环怎么实现？其实也非常简单：</p>
+<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">int</span> sum = <span class="number">10</span>;</span><br><span class="line"><span class="built_in">int</span> i = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">_start:</span><br><span class="line"><span class="keyword">if</span>( i &lt;= <span class="number">10</span> ) &#123;</span><br><span class="line">    sum = sum + i;</span><br><span class="line">    i = i + <span class="number">1</span>;</span><br><span class="line">    goto _start;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这还不够，我们还得做一次变形，为什么呢？回想一下前面说的分之程序在汇编里的情况：</p>
+<figure class="highlight gcode"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> <span class="comment">( a &gt; 10 )</span> &#123;</span><br><span class="line">    <span class="comment">// some code</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上述C代码，暂且成为“正宗C代码”，等价的汇编大致结构如下：</p>
+<figure class="highlight ceylon"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cmp eax, <span class="number">10</span></span><br><span class="line">jle <span class="keyword">out</span><span class="number">_</span><span class="keyword">of</span><span class="number">_</span>block</span><br><span class="line"></span><br><span class="line">; some code</span><br><span class="line"></span><br><span class="line"><span class="keyword">out</span><span class="number">_</span><span class="keyword">of</span><span class="number">_</span>block:</span><br></pre></td></tr></table></figure>
+
+<p>再等价变换回C语言，这里把这种风格叫做“山寨C代码”，实际上就是这样的：</p>
+<figure class="highlight ceylon"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>( a &lt;= <span class="number">10</span> ) goto <span class="keyword">out</span><span class="number">_</span><span class="keyword">of</span><span class="number">_</span>block;</span><br><span class="line"></span><br><span class="line"><span class="comment">// some code</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">out</span><span class="number">_</span><span class="keyword">of</span><span class="number">_</span>block:</span><br></pre></td></tr></table></figure>
+
+<p>经过比较，我们可以发现“山寨C代码”和“正宗C代码”之间的一些区别：</p>
+<ul>
+<li>山寨版中，if块里只需要放一条跳转语句即可</li>
+<li>山寨版中，if里的条件是反过来的</li>
+<li>山寨版中，跳转语句的功能是跳过“正宗C代码”的if块</li>
+</ul>
+<p>相当于是：不满足条件就跳过if中的语句块。</p>
+<p>那循环呢？咱们把循环的C等价代码做一次变换，也就是把只含有goto和if的“正宗C代码”变换为“山寨C代码”的形式：</p>
+<figure class="highlight fortran"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">int</span> <span class="built_in">sum</span> = <span class="number">10</span>;</span><br><span class="line"><span class="built_in">int</span> i = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">_start:</span><br><span class="line"><span class="keyword">if</span>( i &gt; <span class="number">10</span> ) &#123;</span><br><span class="line">    <span class="keyword">goto</span> _end_of_block;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">sum</span> = <span class="built_in">sum</span> + i;</span><br><span class="line">i = i + <span class="number">1</span>;</span><br><span class="line"><span class="keyword">goto</span> _start;</span><br><span class="line"></span><br><span class="line">_end_of_block:</span><br></pre></td></tr></table></figure>
+
+<p>大致看一下流程，再对比源代码：</p>
+<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">int</span> sum = <span class="number">0</span>;</span><br><span class="line"><span class="built_in">int</span> i = <span class="number">1</span>;</span><br><span class="line"><span class="keyword">while</span>( i &lt;= <span class="number">10</span> ) &#123;</span><br><span class="line">    sum = sum + i;</span><br><span class="line">    i = i + <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line">自己在脑子里面模拟一</span><br></pre></td></tr></table></figure>
+<p>遍，是不是就能发现什么了？这俩货分明就是一个东西，执行的顺序和过程完全就是一样的。</p>
+<p>到这里，我们的循环结构，全都被拆散成了最基本的结构，这种结构有一个关键的特点：</p>
+<p>所有if块中都仅有一条goto语句，别的啥都没了<br>到这里，本段就到位了。</p>
+<h3 id="用汇编写出循环"><a href="#用汇编写出循环" class="headerlink" title="用汇编写出循环"></a>用汇编写出循环</h3><p>前面已经介绍了“如何把一个循环拆解成只有if和goto的结构”，有了这个结构之后，其实要写出汇编就非常容易了。</p>
+<p>继续看山寨版的循环：</p>
+<figure class="highlight fortran"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">int</span> <span class="built_in">sum</span> = <span class="number">10</span>;</span><br><span class="line"><span class="built_in">int</span> i = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">_start:</span><br><span class="line"><span class="keyword">if</span>( i &gt; <span class="number">10</span> ) &#123;</span><br><span class="line">    <span class="keyword">goto</span> _end_of_block;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">sum</span> = <span class="built_in">sum</span> + i;</span><br><span class="line">i = i + <span class="number">1</span>;</span><br><span class="line"><span class="keyword">goto</span> _start;</span><br><span class="line"></span><br><span class="line">_end_of_block:</span><br></pre></td></tr></table></figure>
+
+<p>其实，稍微仔细一点就能发现，把这玩意儿写成汇编，就是逐行翻译就完事儿了。动手：</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">global</span> main</span><br><span class="line"></span><br><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, <span class="number">0</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">ebx</span>, <span class="number">1</span></span><br><span class="line"><span class="symbol">_start:</span></span><br><span class="line">    <span class="keyword">cmp</span> <span class="built_in">ebx</span>, <span class="number">10</span></span><br><span class="line">    <span class="keyword">jg</span> _end_of_block</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="built_in">ebx</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">ebx</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">jmp</span> _start</span><br><span class="line">    </span><br><span class="line"><span class="symbol">_end_of_block:</span></span><br><span class="line">    <span class="keyword">ret</span></span><br></pre></td></tr></table></figure>
+
+<p>这里面其实有一个套路：</p>
+<ul>
+<li>单条goto语句可以直接用jmp语句替代</li>
+<li>if和goto组合的语句块可以用cmp和j*指令的组合替代<br>最后，其它语句该干啥干啥。</li>
+</ul>
+<p>这？竟然？就？用汇编？写出？循环？来了？</p>
+<p>嗯，是的。不需要任何一个新的指令，全都是前面提及过的基本指令，只是套路不一样了而已。</p>
+<p>其实这就是一个套路，稍微总结一下就能发现，一个将while循环变换为汇编的过程如下：</p>
+<p>将while循环拆解成只有if和goto的形式<br>将if形式的语句拆解成if块中仅有一行goto语句的形式<br>从前往后逐行翻译成汇编语言<br>其它循环呢？<br>那while循环能够搞定了，其它类型的呢？do-while循环、for循环呢？</p>
+<p>其实，在C语言中，这三种循环之间都是可以相互变换的，也就是说for循环可以变形成为while循环，while循环也可以变成for循环。举个例子：</p>
+<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">int</span> i = <span class="number">1</span>;</span><br><span class="line"><span class="built_in">int</span> sum = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">for</span>(i = <span class="number">0</span>; i &lt;= <span class="number">10</span>; i ++) &#123;</span><br><span class="line">    sum = sum + i;</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">int</span> sum = <span class="number">0</span>;</span><br><span class="line"><span class="built_in">int</span> i = <span class="number">1</span>;</span><br><span class="line"><span class="keyword">while</span>( i &lt;= <span class="number">10</span> ) &#123;</span><br><span class="line">    sum = sum + i;</span><br><span class="line">    i = i + <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上述两个片段的代码，其实就是等价的，仅仅是形式不同。只是有的循环思路用for循环写出来好看一些，有的思路用while循环写出来好看一些，别的没什么本质区别，经过编译器一倒腾之后，就更没有任何区别了。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>在汇编中，分支和循环结构，都是通过两类基本的指令实现的：</p>
+<ul>
+<li>比较</li>
+<li>跳转</li>
+</ul>
+<p>只是，分支结构的程序中，所有的跳转目标都是往后，程序一去不复返。而循环结构中，程序会根据条件往前跳转，跳回去执行已经执行过的代码，在绕圈圈，就成循环了。到汇编层面，本质上，没啥区别。</p>
+<p>好了，汇编语言中的流程控制，基本就算完事儿了，实际上，在汇编语言中，抓住根本的东西就行了，剩下的就是靠脑子想象了。</p>
+<p>文中若有疏漏之处，欢迎指正。</p>
+<p>编辑于 2019-05-08</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%9B%9B%EF%BC%9A%E6%89%93%E9%80%9AC%E5%92%8C%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80/" rel="next" title="汇编语言入门四：打通C和汇编语言">
+                  <i class="fa fa-chevron-left"></i> 汇编语言入门四：打通C和汇编语言
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%B8%83%EF%BC%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%EF%BC%88%E4%B8%80%EF%BC%89/" rel="prev" title="汇编语言入门七：函数调用（一）">
+                  汇编语言入门七：函数调用（一） <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="comments"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#回顾"><span class="nav-number">1.</span> <span class="nav-text">回顾</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#拆散循环结构"><span class="nav-number">2.</span> <span class="nav-text">拆散循环结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#用汇编写出循环"><span class="nav-number">3.</span> <span class="nav-text">用汇编写出循环</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="ljxhb@126.com"
+    src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">ljxhb@126.com</p>
+  <div class="site-description" itemprop="description">记录生活的点点滴滴</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/nonlee" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;nonlee" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:ljxhb@126.com" title="E-Mail &amp;rarr; mailto:ljxhb@126.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      链接
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://blog.nonlee.com/" title="https:&#x2F;&#x2F;blog.nonlee.com&#x2F;" rel="noopener" target="_blank">github备份</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn/" rel="noopener" target="_blank">蜀ICP备19024594号 </a>
+  </div>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ljxhb@126.com</span>
+
+<!-- 访问统计 速度有点慢，注释-->
+<!--
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="site-uv">&nbsp;
+      <i class="fa fa-eye"></i>
+      访问次数:<span class="busuanzi-value" id="busuanzi_value_site_pv"></span> 次
+    </span>
+-->
+</div>
+
+
+        
+
+
+
+
+
+
+
+
+
+
+  <script>
+    var _mtac = {};
+    (function() {
+      var mta = document.createElement("script");
+      mta.src = "https://pingjs.qq.com/h5/stats.js";
+      mta.setAttribute("name", "MTAH5");
+      mta.setAttribute("sid", "500701487");
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(mta, s);
+    })();
+  </script>
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script size="120" alpha="0.15" zIndex="-1" src="/lib/canvas-ribbon/canvas-ribbon.js"></script>
+  <script src="/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'RTSsapWxOUV1SKIKT16wFPtB-gzGzoHsz',
+    appKey: 'H9bCb63qalO3BOe07X7SCtHA',
+    placeholder: "说两句吧...",
+    avatar: 'identicon',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: true,
+    lang: '' || 'zh-cn',
+    path: location.pathname,
+    recordIP: true,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>

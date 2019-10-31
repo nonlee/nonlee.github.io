@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon-64.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.ico">
+  <link rel="mask-icon" href="/images/favicon-64.ico" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-bounce.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '7.4.2',
+    exturl: false,
+    sidebar: {"position":"left","display":"hide","offset":12,"onmobile":true},
+    copycode: {"enable":true,"show_result":true,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":true},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":true,"trigger":"auto","top_n_per_article":-1,"unescape":true,"preload":true},
+    path: 'search.xml',
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":null}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="link 回顾上回我们把汇编里涉及到的寄存器和内存访问相关的内容说了。先来梳理一下： 寄存器是一些超级小的临时存储器，在CPU里面，存放CPU马上就要用到的数据或者刚处理完的结果要处理的数据太多，寄存器装不下了，需要更多寄存器，但是这玩意贵啊内存可以解决上述问题，但是内存相比寄存器要慢，优点是相对便宜，容量也大 插曲：C语言与汇编语言的关系还有一些疑虑，先暂时解释一下。首先，C语言里编程里，我们从">
+<meta name="keywords" content="编程 发呆">
+<meta property="og:type" content="article">
+<meta property="og:title" content="汇编语言入门四：打通C和汇编语言">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;10&#x2F;31&#x2F;%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%9B%9B%EF%BC%9A%E6%89%93%E9%80%9AC%E5%92%8C%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80&#x2F;index.html">
+<meta property="og:site_name" content="nonlee - 工作经验分享">
+<meta property="og:description" content="link 回顾上回我们把汇编里涉及到的寄存器和内存访问相关的内容说了。先来梳理一下： 寄存器是一些超级小的临时存储器，在CPU里面，存放CPU马上就要用到的数据或者刚处理完的结果要处理的数据太多，寄存器装不下了，需要更多寄存器，但是这玩意贵啊内存可以解决上述问题，但是内存相比寄存器要慢，优点是相对便宜，容量也大 插曲：C语言与汇编语言的关系还有一些疑虑，先暂时解释一下。首先，C语言里编程里，我们从">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-10-31T15:17:50.000Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%9B%9B%EF%BC%9A%E6%89%93%E9%80%9AC%E5%92%8C%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>汇编语言入门四：打通C和汇编语言 | nonlee - 工作经验分享</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+<!--    <span class="site-title">nonlee - 工作经验分享</span> -->
+        <span class="site-title">nonlee.com</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="popup search-popup">
+    <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="none"
+           placeholder="搜索..." spellcheck="false"
+           type="text" id="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result"></div>
+
+</div>
+<div class="search-pop-overlay"></div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%9B%9B%EF%BC%9A%E6%89%93%E9%80%9AC%E5%92%8C%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80/">
+    
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="ljxhb@126.com">
+      <meta itemprop="description" content="记录生活的点点滴滴">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="nonlee - 工作经验分享">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          汇编语言入门四：打通C和汇编语言
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-10-31 23:17:09" itemprop="dateCreated datePublished" datetime="2019-10-31T23:17:09+08:00">2019-10-31</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index">
+                    <span itemprop="name">汇编语言</span>
+                  </a>
+                </span>
+            </span>
+
+          
+            <span id="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%9B%9B%EF%BC%9A%E6%89%93%E9%80%9AC%E5%92%8C%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80/" class="post-meta-item leancloud_visitors" data-flag-title="汇编语言入门四：打通C和汇编语言" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">评论数：</span>
+    
+    <a title="valine" href="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%9B%9B%EF%BC%9A%E6%89%93%E9%80%9AC%E5%92%8C%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80/#comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%9B%9B%EF%BC%9A%E6%89%93%E9%80%9AC%E5%92%8C%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="https://zhuanlan.zhihu.com/p/23779935" target="_blank" rel="noopener" title="原文链接">link</a></p>
+<h3 id="回顾"><a href="#回顾" class="headerlink" title="回顾"></a>回顾</h3><p>上回我们把汇编里涉及到的寄存器和内存访问相关的内容说了。先来梳理一下：</p>
+<p>寄存器是一些超级小的临时存储器，在CPU里面，存放CPU马上就要用到的数据或者刚处理完的结果<br>要处理的数据太多，寄存器装不下了，需要更多寄存器，但是这玩意贵啊<br>内存可以解决上述问题，但是内存相比寄存器要慢，优点是相对便宜，容量也大</p>
+<h3 id="插曲：C语言与汇编语言的关系"><a href="#插曲：C语言与汇编语言的关系" class="headerlink" title="插曲：C语言与汇编语言的关系"></a>插曲：C语言与汇编语言的关系</h3><p>还有一些疑虑，先暂时解释一下。首先，C语言里编程里，我们从来没有关心过寄存器。汇编语言里突然冒出这么一个东西，学起来好难受。接下来的内容，我们先把C语言和汇编语言的知识，来一次大一统，帮助理解。</p>
+<p>首先我们来看一个C语言程序：</p>
+<figure class="highlight gml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">int <span class="symbol">x</span>, <span class="symbol">y</span>, z;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    <span class="symbol">x</span> = <span class="number">2</span>;</span><br><span class="line">    <span class="symbol">y</span> = <span class="number">3</span>;</span><br><span class="line">    z = <span class="symbol">x</span> + <span class="symbol">y</span>;</span><br><span class="line">    <span class="keywords">return</span> z;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>考虑到我们的汇编教程才刚开始，我这里尽可能先简化C程序，这样稍后涉及到等价的汇编内容时所需的知识都是前面介绍过的。</p>
+<p>保存为test01.c文件，先编译运行这个程序：</p>
+<p>（注意，这里的gcc带了一个参数-m32，因为我们要编译出32位（x86）的可执行文件）</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ </span>gcc -m32 test01.c -o test01</span><br><span class="line"><span class="variable">$ </span>./test01 ; echo <span class="variable">$?</span></span><br><span class="line"><span class="number">5</span></span><br></pre></td></tr></table></figure>
+
+<p>好了，在这里，我们的程序返回了一个值：5。</p>
+<p>好的，接下来我们看看如果我们要用汇编实现几乎相同的过程，该怎么做？</p>
+<p>首先，三个全局变量：</p>
+<figure class="highlight gml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int <span class="symbol">x</span>, <span class="symbol">y</span>, z;</span><br></pre></td></tr></table></figure>
+
+
+<p>总得有吧。（这里之所以会用全局变量，是考虑到局部变量相关的汇编知识还未介绍，先将就一下，后续再说局部变量的内容）</p>
+<p>首先，在C语言里，你可以认为每个变量都会占用一定的内存空间，也就是说，这里的x、y、z分别都占用了一个“整型”也就是4字节的存储空间。</p>
+<p>上次我们介绍过在汇编里面访问内存的知识，当然，我们也知道了怎么在数据区划出一定的空间，这次我们就照搬前面提及的方法：</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">global</span> main</span><br><span class="line"></span><br><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, <span class="number">0</span></span><br><span class="line">    <span class="keyword">ret</span></span><br><span class="line"></span><br><span class="line"><span class="meta">section</span> .data</span><br><span class="line"></span><br><span class="line">x    <span class="built_in">dw</span>    <span class="number">0</span></span><br><span class="line">y    <span class="built_in">dw</span>    <span class="number">0</span></span><br><span class="line">z    <span class="built_in">dw</span>    <span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+<p>这个程序就等价于下面的C代码：</p>
+<figure class="highlight angelscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">int</span> x, y, z;</span><br><span class="line"></span><br><span class="line"><span class="built_in">int</span> main() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>也就是现在有了三个全局变量，只是现在汇编程序什么都没做，仅仅返回了0而已。</p>
+<p>这里的C代码和上述汇编代码从某种程度上来说，就是完全等价的。甚至，我们的C语言编译器就可以直接把C代码，翻译成上述的汇编代码，余下的工作交给nasm再编译一次，把汇编转化为可执行文件，就能够得到最后的程序了。当然，理论上可以这么做，实际上有的编译器也就是这么做的，只是人家生成的汇编格式不是nasm，而是其它的类型，但是道理都差不多。</p>
+<p>也就是说，一个足够精简的C编译器，只需要能够把C代码翻译成汇编代码，剩下的交给汇编器完成，也就能实现完整的C语言编译器了，也就能得到最后的可执行文件了。实际上C编译器是完全可以这么做的，甚至有的就是这么做的。</p>
+<p>好了，先不扯这些，我们先把前面的程序补充完整，达到和最前面的C代码等价为止。接下来，我们要关注这个：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">x</span> = <span class="number">2</span><span class="comment">;</span></span><br><span class="line"><span class="attr">y</span> = <span class="number">3</span><span class="comment">;</span></span><br></pre></td></tr></table></figure>
+
+<p>也就是要把数字2和3，分别放到x和y对应的内存区域中去。很简单，我们可以这么做：</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">mov</span> <span class="built_in">eax</span>, <span class="number">2</span></span><br><span class="line"><span class="keyword">mov</span> [x], <span class="built_in">eax</span></span><br><span class="line"><span class="keyword">mov</span> <span class="built_in">eax</span>, <span class="number">3</span></span><br><span class="line"><span class="keyword">mov</span> [y], <span class="built_in">eax</span></span><br></pre></td></tr></table></figure>
+
+<p>也就是先把2扔到寄存器eax中去，然后把eax中的内容放回到x对应的内存中。同理，y也这样处理。</p>
+<p>好了，接下来的加法语句：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">z</span> = x + y<span class="comment">;</span></span><br></pre></td></tr></table></figure>
+
+<p>也可以做了：</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">mov</span> <span class="built_in">eax</span>, [x]</span><br><span class="line"><span class="keyword">mov</span> <span class="built_in">ebx</span>, [y]</span><br><span class="line"><span class="keyword">add</span> <span class="built_in">eax</span>, <span class="built_in">ebx</span></span><br><span class="line"><span class="keyword">mov</span> [z], <span class="built_in">eax</span></span><br></pre></td></tr></table></figure>
+
+<p>好了，这段代码应该可以看懂吧，简单说一下思路：</p>
+<p>把x和y对应的内存中的内容分别放到eax和ebx中去<br>进行形如eax = eax + ebx的加法，最终的和存放在eax中<br>再将eax中的内容存放到z对应的内存中去<br>最后，我们还有一个事情需要处理，也就是返回语句：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> z;</span><br></pre></td></tr></table></figure>
+
+<p>这个也很好办，按照约定，eax中的值，就是函数的返回值：</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">mov</span> <span class="built_in">eax</span>, [z]</span><br><span class="line"><span class="keyword">ret</span></span><br></pre></td></tr></table></figure>
+
+<p>整个程序就算完了，我们已经完整地将C代码的汇编语言等价形式写出来了，最终的代码是这样的：</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">global</span> main</span><br><span class="line"></span><br><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, <span class="number">2</span></span><br><span class="line">    <span class="keyword">mov</span> [x], <span class="built_in">eax</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, <span class="number">3</span></span><br><span class="line">    <span class="keyword">mov</span> [y], <span class="built_in">eax</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, [x]</span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">ebx</span>, [y]</span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="built_in">ebx</span></span><br><span class="line">    <span class="keyword">mov</span> [z], <span class="built_in">eax</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, [z]</span><br><span class="line">    <span class="keyword">ret</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">section</span> .data</span><br><span class="line">x       <span class="built_in">dw</span>      <span class="number">0</span></span><br><span class="line">y       <span class="built_in">dw</span>      <span class="number">0</span></span><br><span class="line">z       <span class="built_in">dw</span>      <span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+<p>来先保存成文件test02.asm，编译运行看看效果：</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ </span>nasm -f elf test02.asm -o test02.o </span><br><span class="line"><span class="variable">$ </span>gcc -m32 test02.o -o test02</span><br><span class="line"><span class="variable">$ </span>./test02 ; echo <span class="variable">$?</span></span><br><span class="line"><span class="number">5</span></span><br></pre></td></tr></table></figure>
+
+<p>搞定。结果完全和前面的C代码一致。</p>
+<h3 id="揭开C程序的庐山真面目"><a href="#揭开C程序的庐山真面目" class="headerlink" title="揭开C程序的庐山真面目"></a>揭开C程序的庐山真面目</h3><p>你以为自己YY出等价的汇编代码就完事儿了？图样，接下来我们继续用工具一探究竟，玩真的。</p>
+<p>先说一下准备工作，首先有下面两个文件：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">test01</span><span class="selector-class">.c</span>  <span class="selector-tag">test02</span><span class="selector-class">.asm</span></span><br></pre></td></tr></table></figure>
+<p>其中一个为上面提到的完整C代码，一个为上述完整的汇编代码。然后按照前面的指示，都编译成可执行文件，编译完成后是这样的：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ gcc -m32 test01<span class="selector-class">.c</span> -o test01</span><br><span class="line">$ nasm -f elf test02<span class="selector-class">.asm</span> -o test02.o</span><br><span class="line">$ gcc -m32 -fno-lto test02<span class="selector-class">.o</span> -o test02</span><br><span class="line">$ ls</span><br><span class="line">test01  test01<span class="selector-class">.c</span>  test02  test02<span class="selector-class">.asm</span>  test02.o</span><br></pre></td></tr></table></figure>
+
+<p>（注意，要按照这里的编译命令来做）</p>
+<p>其中的test01是C代码编译出来的，test02是汇编代码编译出来的。</p>
+<h3 id="祭出gdb"><a href="#祭出gdb" class="headerlink" title="祭出gdb"></a>祭出gdb</h3><p>好，接下来有请我们的大将军gdb登场。</p>
+<p>先来看看我们的C编译后的程序，反汇编之后是什么鬼样子：</p>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gdb <span class="string">./test01</span></span><br></pre></td></tr></table></figure>
+
+<p>然后输入命令查看反汇编代码：</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">(gdb) set disassembly-flavor intel</span><br><span class="line">(gdb) disas main</span><br><span class="line">Dump of assembler code for function main:</span><br><span class="line">   <span class="number">0x080483ed</span> &lt;+<span class="number">0</span>&gt;: <span class="keyword">push</span>   <span class="built_in">ebp</span></span><br><span class="line">   <span class="number">0x080483ee</span> &lt;+<span class="number">1</span>&gt;: <span class="keyword">mov</span>    <span class="built_in">ebp</span>,<span class="built_in">esp</span></span><br><span class="line">   <span class="number">0x080483f0</span> &lt;+<span class="number">3</span>&gt;: <span class="keyword">mov</span>    <span class="built_in">DWORD</span> <span class="built_in">PTR</span> <span class="built_in">ds</span>:<span class="number">0x804a024</span>,<span class="number">0x2</span></span><br><span class="line">   <span class="number">0x080483fa</span> &lt;+<span class="number">13</span>&gt;:    <span class="keyword">mov</span>    <span class="built_in">DWORD</span> <span class="built_in">PTR</span> <span class="built_in">ds</span>:<span class="number">0x804a028</span>,<span class="number">0x3</span></span><br><span class="line">   <span class="number">0x08048404</span> &lt;+<span class="number">23</span>&gt;:    <span class="keyword">mov</span>    <span class="built_in">edx</span>,<span class="built_in">DWORD</span> <span class="built_in">PTR</span> <span class="built_in">ds</span>:<span class="number">0x804a024</span></span><br><span class="line">   <span class="number">0x0804840a</span> &lt;+<span class="number">29</span>&gt;:    <span class="keyword">mov</span>    <span class="built_in">eax</span>,<span class="built_in">ds</span>:<span class="number">0x804a028</span></span><br><span class="line">   <span class="number">0x0804840f</span> &lt;+<span class="number">34</span>&gt;:    <span class="keyword">add</span>    <span class="built_in">eax</span>,<span class="built_in">edx</span></span><br><span class="line">   <span class="number">0x08048411</span> &lt;+<span class="number">36</span>&gt;:    <span class="keyword">mov</span>    <span class="built_in">ds</span>:<span class="number">0x804a020</span>,<span class="built_in">eax</span></span><br><span class="line">   <span class="number">0x08048416</span> &lt;+<span class="number">41</span>&gt;:    <span class="keyword">mov</span>    <span class="built_in">eax</span>,<span class="built_in">ds</span>:<span class="number">0x804a020</span></span><br><span class="line">   <span class="number">0x0804841b</span> &lt;+<span class="number">46</span>&gt;:    <span class="keyword">pop</span>    <span class="built_in">ebp</span></span><br><span class="line">   <span class="number">0x0804841c</span> &lt;+<span class="number">47</span>&gt;:    <span class="keyword">ret</span>    </span><br><span class="line">End of assembler dump.</span><br><span class="line">(gdb) quit</span><br><span class="line">$</span><br></pre></td></tr></table></figure>
+
+<p>好，别急，先退出，我们再看看我们汇编程序的反汇编代码：</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">gdb ./test02</span><br><span class="line">(gdb) set disassembly-flavor intel</span><br><span class="line">(gdb) disas main</span><br><span class="line">   <span class="number">0x080483f0</span> &lt;+<span class="number">0</span>&gt;: <span class="keyword">mov</span>    <span class="built_in">eax</span>,<span class="number">0x2</span></span><br><span class="line">   <span class="number">0x080483f5</span> &lt;+<span class="number">5</span>&gt;: <span class="keyword">mov</span>    <span class="built_in">ds</span>:<span class="number">0x804a01c</span>,<span class="built_in">eax</span></span><br><span class="line">   <span class="number">0x080483fa</span> &lt;+<span class="number">10</span>&gt;:    <span class="keyword">mov</span>    <span class="built_in">eax</span>,<span class="number">0x3</span></span><br><span class="line">   <span class="number">0x080483ff</span> &lt;+<span class="number">15</span>&gt;:    <span class="keyword">mov</span>    <span class="built_in">ds</span>:<span class="number">0x804a01e</span>,<span class="built_in">eax</span></span><br><span class="line">   <span class="number">0x08048404</span> &lt;+<span class="number">20</span>&gt;:    <span class="keyword">mov</span>    <span class="built_in">eax</span>,<span class="built_in">ds</span>:<span class="number">0x804a01c</span></span><br><span class="line">   <span class="number">0x08048409</span> &lt;+<span class="number">25</span>&gt;:    <span class="keyword">mov</span>    <span class="built_in">ebx</span>,<span class="built_in">DWORD</span> <span class="built_in">PTR</span> <span class="built_in">ds</span>:<span class="number">0x804a01e</span></span><br><span class="line">   <span class="number">0x0804840f</span> &lt;+<span class="number">31</span>&gt;:    <span class="keyword">add</span>    <span class="built_in">eax</span>,<span class="built_in">ebx</span></span><br><span class="line">   <span class="number">0x08048411</span> &lt;+<span class="number">33</span>&gt;:    <span class="keyword">mov</span>    <span class="built_in">ds</span>:<span class="number">0x804a020</span>,<span class="built_in">eax</span></span><br><span class="line">   <span class="number">0x08048416</span> &lt;+<span class="number">38</span>&gt;:    <span class="keyword">mov</span>    <span class="built_in">eax</span>,<span class="built_in">ds</span>:<span class="number">0x804a020</span></span><br><span class="line">   <span class="number">0x0804841b</span> &lt;+<span class="number">43</span>&gt;:    <span class="keyword">ret</span>    </span><br><span class="line">   <span class="number">0x0804841c</span> &lt;+<span class="number">44</span>&gt;:    <span class="keyword">xchg</span>   <span class="built_in">ax</span>,<span class="built_in">ax</span></span><br><span class="line">   <span class="number">0x0804841e</span> &lt;+<span class="number">46</span>&gt;:    <span class="keyword">xchg</span>   <span class="built_in">ax</span>,<span class="built_in">ax</span></span><br><span class="line">End of assembler dump.</span><br><span class="line">(gdb) quit</span><br></pre></td></tr></table></figure>
+
+<p>好了，我们都看到反汇编代码了。先来检查一下这里test02的反汇编代码，和我们写的汇编代码是不是一致的：</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">0x080483f0</span> &lt;+<span class="number">0</span>&gt;: <span class="keyword">mov</span>    <span class="built_in">eax</span>,<span class="number">0x2</span></span><br><span class="line"><span class="number">0x080483f5</span> &lt;+<span class="number">5</span>&gt;: <span class="keyword">mov</span>    <span class="built_in">ds</span>:<span class="number">0x804a01c</span>,<span class="built_in">eax</span></span><br><span class="line"><span class="number">0x080483fa</span> &lt;+<span class="number">10</span>&gt;:    <span class="keyword">mov</span>    <span class="built_in">eax</span>,<span class="number">0x3</span></span><br><span class="line"><span class="number">0x080483ff</span> &lt;+<span class="number">15</span>&gt;:    <span class="keyword">mov</span>    <span class="built_in">ds</span>:<span class="number">0x804a01e</span>,<span class="built_in">eax</span></span><br><span class="line"><span class="number">0x08048404</span> &lt;+<span class="number">20</span>&gt;:    <span class="keyword">mov</span>    <span class="built_in">eax</span>,<span class="built_in">ds</span>:<span class="number">0x804a01c</span></span><br><span class="line"><span class="number">0x08048409</span> &lt;+<span class="number">25</span>&gt;:    <span class="keyword">mov</span>    <span class="built_in">ebx</span>,<span class="built_in">DWORD</span> <span class="built_in">PTR</span> <span class="built_in">ds</span>:<span class="number">0x804a01e</span></span><br><span class="line"><span class="number">0x0804840f</span> &lt;+<span class="number">31</span>&gt;:    <span class="keyword">add</span>    <span class="built_in">eax</span>,<span class="built_in">ebx</span></span><br><span class="line"><span class="number">0x08048411</span> &lt;+<span class="number">33</span>&gt;:    <span class="keyword">mov</span>    <span class="built_in">ds</span>:<span class="number">0x804a020</span>,<span class="built_in">eax</span></span><br><span class="line"><span class="number">0x08048416</span> &lt;+<span class="number">38</span>&gt;:    <span class="keyword">mov</span>    <span class="built_in">eax</span>,<span class="built_in">ds</span>:<span class="number">0x804a020</span></span><br><span class="line"><span class="number">0x0804841b</span> &lt;+<span class="number">43</span>&gt;:    <span class="keyword">ret</span></span><br></pre></td></tr></table></figure>
+
+<p>直接和前面写的汇编进行比对便是，由于格式问题，里面的部分地址和标签已经面目全非，但是我们只要能够辨识出来就行了，不需要全部都搞得明明白白。这是前面的汇编代码：</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">mov</span> <span class="built_in">eax</span>, <span class="number">2</span></span><br><span class="line"><span class="keyword">mov</span> [x], <span class="built_in">eax</span></span><br><span class="line"><span class="keyword">mov</span> <span class="built_in">eax</span>, <span class="number">3</span></span><br><span class="line"><span class="keyword">mov</span> [y], <span class="built_in">eax</span></span><br><span class="line"><span class="keyword">mov</span> <span class="built_in">eax</span>, [x]</span><br><span class="line"><span class="keyword">mov</span> <span class="built_in">ebx</span>, [y]</span><br><span class="line"><span class="keyword">add</span> <span class="built_in">eax</span>, <span class="built_in">ebx</span></span><br><span class="line"><span class="keyword">mov</span> [z], <span class="built_in">eax</span></span><br><span class="line"><span class="keyword">mov</span> <span class="built_in">eax</span>, [z]</span><br><span class="line"><span class="keyword">ret</span></span><br></pre></td></tr></table></figure>
+
+<p>数一下行数就知道，是相同的。再仔细看看每一条指令，基本也是差不多的。当然x、y、z这些东西不见了，变成了一些奇奇怪怪的符号，在此暂不深究。</p>
+<p>我们再看看C程序的汇编代码：</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">0x080483ed</span> &lt;+<span class="number">0</span>&gt;:     <span class="keyword">push</span>   <span class="built_in">ebp</span></span><br><span class="line"><span class="number">0x080483ee</span> &lt;+<span class="number">1</span>&gt;:     <span class="keyword">mov</span>    <span class="built_in">ebp</span>,<span class="built_in">esp</span></span><br><span class="line"><span class="number">0x080483f0</span> &lt;+<span class="number">3</span>&gt;:     <span class="keyword">mov</span>    <span class="built_in">DWORD</span> <span class="built_in">PTR</span> <span class="built_in">ds</span>:<span class="number">0x804a024</span>,<span class="number">0x2</span></span><br><span class="line"><span class="number">0x080483fa</span> &lt;+<span class="number">13</span>&gt;:    <span class="keyword">mov</span>    <span class="built_in">DWORD</span> <span class="built_in">PTR</span> <span class="built_in">ds</span>:<span class="number">0x804a028</span>,<span class="number">0x3</span></span><br><span class="line"><span class="number">0x08048404</span> &lt;+<span class="number">23</span>&gt;:    <span class="keyword">mov</span>    <span class="built_in">edx</span>,<span class="built_in">DWORD</span> <span class="built_in">PTR</span> <span class="built_in">ds</span>:<span class="number">0x804a024</span></span><br><span class="line"><span class="number">0x0804840a</span> &lt;+<span class="number">29</span>&gt;:    <span class="keyword">mov</span>    <span class="built_in">eax</span>,<span class="built_in">ds</span>:<span class="number">0x804a028</span></span><br><span class="line"><span class="number">0x0804840f</span> &lt;+<span class="number">34</span>&gt;:    <span class="keyword">add</span>    <span class="built_in">eax</span>,<span class="built_in">edx</span></span><br><span class="line"><span class="number">0x08048411</span> &lt;+<span class="number">36</span>&gt;:    <span class="keyword">mov</span>    <span class="built_in">ds</span>:<span class="number">0x804a020</span>,<span class="built_in">eax</span></span><br><span class="line"><span class="number">0x08048416</span> &lt;+<span class="number">41</span>&gt;:    <span class="keyword">mov</span>    <span class="built_in">eax</span>,<span class="built_in">ds</span>:<span class="number">0x804a020</span></span><br><span class="line"><span class="number">0x0804841b</span> &lt;+<span class="number">46</span>&gt;:    <span class="keyword">pop</span>    <span class="built_in">ebp</span></span><br><span class="line"><span class="number">0x0804841c</span> &lt;+<span class="number">47</span>&gt;:    <span class="keyword">ret</span></span><br></pre></td></tr></table></figure>
+
+<p>这里，先撇开下面几个指令（这几个指令本身是有用的，但是在这个例子里，可以暂时先去掉，具体它们是干啥的，后面说），去掉它们：</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">push</span> <span class="built_in">ebp</span></span><br><span class="line"><span class="keyword">mov</span> <span class="built_in">ebp</span>, <span class="built_in">esp</span></span><br><span class="line">....</span><br><span class="line"><span class="keyword">pop</span> <span class="built_in">ebp</span></span><br></pre></td></tr></table></figure>
+
+<p>于是C程序反汇编变成了这样子：</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">0x080483f0</span> &lt;+<span class="number">3</span>&gt;:     <span class="keyword">mov</span>    <span class="built_in">DWORD</span> <span class="built_in">PTR</span> <span class="built_in">ds</span>:<span class="number">0x804a024</span>,<span class="number">0x2</span></span><br><span class="line"><span class="number">0x080483fa</span> &lt;+<span class="number">13</span>&gt;:    <span class="keyword">mov</span>    <span class="built_in">DWORD</span> <span class="built_in">PTR</span> <span class="built_in">ds</span>:<span class="number">0x804a028</span>,<span class="number">0x3</span></span><br><span class="line"><span class="number">0x08048404</span> &lt;+<span class="number">23</span>&gt;:    <span class="keyword">mov</span>    <span class="built_in">edx</span>,<span class="built_in">DWORD</span> <span class="built_in">PTR</span> <span class="built_in">ds</span>:<span class="number">0x804a024</span></span><br><span class="line"><span class="number">0x0804840a</span> &lt;+<span class="number">29</span>&gt;:    <span class="keyword">mov</span>    <span class="built_in">eax</span>,<span class="built_in">ds</span>:<span class="number">0x804a028</span></span><br><span class="line"><span class="number">0x0804840f</span> &lt;+<span class="number">34</span>&gt;:    <span class="keyword">add</span>    <span class="built_in">eax</span>,<span class="built_in">edx</span></span><br><span class="line"><span class="number">0x08048411</span> &lt;+<span class="number">36</span>&gt;:    <span class="keyword">mov</span>    <span class="built_in">ds</span>:<span class="number">0x804a020</span>,<span class="built_in">eax</span></span><br><span class="line"><span class="number">0x08048416</span> &lt;+<span class="number">41</span>&gt;:    <span class="keyword">mov</span>    <span class="built_in">eax</span>,<span class="built_in">ds</span>:<span class="number">0x804a020</span></span><br><span class="line"><span class="number">0x0804841c</span> &lt;+<span class="number">47</span>&gt;:    <span class="keyword">ret</span></span><br></pre></td></tr></table></figure>
+
+<p>还是看起来不太明朗，怎么办？我们追踪里面的数字2、3和add指令，把那些稀奇古怪的符号换成我们认识的标签x、y、z再看看：</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">0x080483f0</span> &lt;+<span class="number">3</span>&gt;: <span class="keyword">mov</span>    [x],<span class="number">0x2</span></span><br><span class="line"><span class="number">0x080483fa</span> &lt;+<span class="number">13</span>&gt;:    <span class="keyword">mov</span>    [y],<span class="number">0x3</span></span><br><span class="line"><span class="number">0x08048404</span> &lt;+<span class="number">23</span>&gt;:    <span class="keyword">mov</span>    <span class="built_in">edx</span>,[x]</span><br><span class="line"><span class="number">0x0804840a</span> &lt;+<span class="number">29</span>&gt;:    <span class="keyword">mov</span>    <span class="built_in">eax</span>,[y]</span><br><span class="line"><span class="number">0x0804840f</span> &lt;+<span class="number">34</span>&gt;:    <span class="keyword">add</span>    <span class="built_in">eax</span>,<span class="built_in">edx</span></span><br><span class="line"><span class="number">0x08048411</span> &lt;+<span class="number">36</span>&gt;:    <span class="keyword">mov</span>    [z],<span class="built_in">eax</span></span><br><span class="line"><span class="number">0x08048416</span> &lt;+<span class="number">41</span>&gt;:    <span class="keyword">mov</span>    <span class="built_in">eax</span>,[z]</span><br><span class="line"><span class="number">0x0804841c</span> &lt;+<span class="number">47</span>&gt;:    <span class="keyword">ret</span></span><br></pre></td></tr></table></figure>
+
+<p>对比前面我们自己写的汇编代码看看呢？是不是基本是八九不离十了？仅仅有两个地方不一样：1. 使用的寄存器顺序不太一样，但是这个无妨；2. 有两条汇编指令，在C编译后的反汇编代码中对应的是一条指令。</p>
+<p>这里我们发现了，原来</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">mov</span> <span class="built_in">eax</span>, <span class="number">2</span></span><br><span class="line"><span class="keyword">mov</span> [x], <span class="built_in">eax</span></span><br></pre></td></tr></table></figure>
+
+<p>可以被精简为一条语句：</p>
+<figure class="highlight accesslog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mov <span class="string">[x]</span>, <span class="number">2</span></span><br></pre></td></tr></table></figure>
+
+<p>好的，按照C编译器给我们提供的信息，我们的汇编程序还可以简化成这样：</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">global</span> main</span><br><span class="line"></span><br><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="keyword">mov</span> [x], <span class="number">0x2</span></span><br><span class="line">    <span class="keyword">mov</span> [y], <span class="number">0x3</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, [x]</span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">ebx</span>, [y]</span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="built_in">ebx</span></span><br><span class="line">    <span class="keyword">mov</span> [z], <span class="built_in">eax</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, [z]</span><br><span class="line">    <span class="keyword">ret</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">section</span> .data</span><br><span class="line">x       <span class="built_in">dw</span>      <span class="number">0</span></span><br><span class="line">y       <span class="built_in">dw</span>      <span class="number">0</span></span><br><span class="line">z       <span class="built_in">dw</span>      <span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+<p>然而，当我们把汇编写成这样自己编译的时候，却出错了，这里并不能完全这么写，得做一些小修改，把前两条指令改成：</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">mov</span> <span class="built_in">dword</span> [x], <span class="number">0x2</span></span><br><span class="line"><span class="keyword">mov</span> <span class="built_in">dword</span> [y], <span class="number">0x3</span></span><br></pre></td></tr></table></figure>
+
+<p>这样再编译，就没有问题了。通过研究，我们用汇编写出了和前面的C程序编译后代码等价的汇编程序：</p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">global</span> main</span><br><span class="line"></span><br><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">dword</span> [x], <span class="number">0x2</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">dword</span> [y], <span class="number">0x3</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, [x]</span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">ebx</span>, [y]</span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="built_in">ebx</span></span><br><span class="line">    <span class="keyword">mov</span> [z], <span class="built_in">eax</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, [z]</span><br><span class="line">    <span class="keyword">ret</span></span><br><span class="line"></span><br><span class="line"><span class="meta">section</span> .data</span><br><span class="line">x       <span class="built_in">dw</span>      <span class="number">0</span></span><br><span class="line">y       <span class="built_in">dw</span>      <span class="number">0</span></span><br><span class="line">z       <span class="built_in">dw</span>      <span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>好了，到这里，我们通过nasm、gcc和gdb，将一个简单的C程序，用汇编语言等价地实现出来了。</p>
+<p>说一下这一段内容的重点：</p>
+<p>C程序在编译阶段，在逻辑上，会被转化成等价的汇编程序<br>汇编程序经过编译器内置（或外置）的汇编器，编译成机器指令（到可执行文件的过程中还有一个链接阶段，后面再提）<br>我们可以通过gdb反汇编得知一个C程序的汇编形式<br>其实，学习汇编语言的目的，并非主要是为了今后用汇编语言编程，而是借助于对汇编语言的理解，进一步地去理解高级语言在底层的一些细节，一个C语言的赋值语句，一个C语言的加法表达式，在编译后运行的时候，到底在做些什么。也就是通过汇编认识到计算机中，程序执行的时候到底在做些什么，CPU到底在干什么，借助于此，理解计算机程序在CPU眼里的本质。</p>
+<p>后续通过这个，结合各种资料学习汇编语言，将是一个非常不错的选择。在对汇编进行实践和理解的过程中，也能更清楚地知道C语言里的各种写法，到底代表什么含义，加深对C语言的认识。</p>
+<h3 id="废话"><a href="#废话" class="headerlink" title="废话"></a>废话</h3><p>本节内容涉及的代码和操作就多一些了，当然能够耐心做完是最好的，一天两天不够就三天五天，也是值得的。</p>
+<p>文中若有疏漏，欢迎指正。</p>
+<p>编辑于 2016-11-19</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%BA%94%EF%BC%9A%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6%EF%BC%88%E4%B8%80%EF%BC%89/" rel="next" title="汇编语言入门五：流程控制（一）">
+                  <i class="fa fa-chevron-left"></i> 汇编语言入门五：流程控制（一）
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%85%AD%EF%BC%9A%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6%EF%BC%88%E4%BA%8C%EF%BC%89/" rel="prev" title="汇编语言入门六：流程控制（二）">
+                  汇编语言入门六：流程控制（二） <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="comments"></div>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#回顾"><span class="nav-number">1.</span> <span class="nav-text">回顾</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#插曲：C语言与汇编语言的关系"><span class="nav-number">2.</span> <span class="nav-text">插曲：C语言与汇编语言的关系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#揭开C程序的庐山真面目"><span class="nav-number">3.</span> <span class="nav-text">揭开C程序的庐山真面目</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#祭出gdb"><span class="nav-number">4.</span> <span class="nav-text">祭出gdb</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#废话"><span class="nav-number">6.</span> <span class="nav-text">废话</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="ljxhb@126.com"
+    src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">ljxhb@126.com</p>
+  <div class="site-description" itemprop="description">记录生活的点点滴滴</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/nonlee" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;nonlee" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:ljxhb@126.com" title="E-Mail &amp;rarr; mailto:ljxhb@126.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      链接
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://blog.nonlee.com/" title="https:&#x2F;&#x2F;blog.nonlee.com&#x2F;" rel="noopener" target="_blank">github备份</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+  <div class="beian"><a href="http://www.beian.miit.gov.cn/" rel="noopener" target="_blank">蜀ICP备19024594号 </a>
+  </div>
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ljxhb@126.com</span>
+
+<!-- 访问统计 速度有点慢，注释-->
+<!--
+  <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="site-uv">&nbsp;
+      <i class="fa fa-eye"></i>
+      访问次数:<span class="busuanzi-value" id="busuanzi_value_site_pv"></span> 次
+    </span>
+-->
+</div>
+
+
+        
+
+
+
+
+
+
+
+
+
+
+  <script>
+    var _mtac = {};
+    (function() {
+      var mta = document.createElement("script");
+      mta.src = "https://pingjs.qq.com/h5/stats.js";
+      mta.setAttribute("name", "MTAH5");
+      mta.setAttribute("sid", "500701487");
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(mta, s);
+    })();
+  </script>
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script size="120" alpha="0.15" zIndex="-1" src="/lib/canvas-ribbon/canvas-ribbon.js"></script>
+  <script src="/lib/anime.min.js"></script>
+<script src="/js/utils.js"></script>
+<script src="/js/schemes/muse.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+  <script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.getScript('//cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js', () => {
+  var GUEST = ['nick', 'mail', 'link'];
+  var guest = 'nick';
+  guest = guest.split(',').filter(item => {
+    return GUEST.includes(item);
+  });
+  new Valine({
+    el: '#comments',
+    verify: false,
+    notify: false,
+    appId: 'RTSsapWxOUV1SKIKT16wFPtB-gzGzoHsz',
+    appKey: 'H9bCb63qalO3BOe07X7SCtHA',
+    placeholder: "说两句吧...",
+    avatar: 'identicon',
+    meta: guest,
+    pageSize: '10' || 10,
+    visitor: true,
+    lang: '' || 'zh-cn',
+    path: location.pathname,
+    recordIP: true,
+    serverURLs: ''
+  });
+}, window.Valine);
+</script>
+
+</body>
+</html>
