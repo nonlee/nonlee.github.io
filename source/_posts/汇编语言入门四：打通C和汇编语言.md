@@ -1,13 +1,13 @@
 ---
 title: 汇编语言入门四：打通C和汇编语言
-date: 2019-10-31 23:17:09
+date: 2019-10-31 23:00:09
 tags:
 top: 4
 categories: 汇编语言
 ---
 
 
-[link](https://zhuanlan.zhihu.com/p/23779935 "原文链接")
+[原文链接](https://zhuanlan.zhihu.com/p/23779935 "原文链接")
 
 ### 回顾
 上回我们把汇编里涉及到的寄存器和内存访问相关的内容说了。先来梳理一下：
