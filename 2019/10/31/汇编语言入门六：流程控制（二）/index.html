@@ -60,7 +60,7 @@
 <meta property="og:site_name" content="nonlee - 工作经验分享">
 <meta property="og:description" content="原文链接 回顾前面说到在汇编语言中实现类似C语言if-else if-else这样的结构， 实际上，在汇编里面，我们并不关心if了，取而代之的是两种基本的指令：  比较 跳转  这两种指令即可组成最基本的分支程序结构，虽然跳转指令非常多，但是我们已经有套路了，怎么跳转都不怕了。当然，在编程环境中仅有分支还不够的，我们知道C语言中除了分支结构之外，还有循环这个最基本也是最常用的形式。正好，这也是本节">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-10-31T15:39:57.000Z">
+<meta property="og:updated_time" content="2019-10-31T15:45:33.000Z">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="http://yoursite.com/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%85%AD%EF%BC%9A%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6%EF%BC%88%E4%BA%8C%EF%BC%89/">
@@ -285,6 +285,8 @@
 <li>跳转</li>
 </ul>
 <p>这两种指令即可组成最基本的分支程序结构，虽然跳转指令非常多，但是我们已经有套路了，怎么跳转都不怕了。当然，在编程环境中仅有分支还不够的，我们知道C语言中除了分支结构之外，还有循环这个最基本也是最常用的形式。正好，这也是本节话题的主角。</p>
+<a id="more"></a>
+
 <p>文中涉及一些汇编代码，建议读者自行编程，通过动手实践来加深对程序的理解。</p>
 <h3 id="拆散循环结构"><a href="#拆散循环结构" class="headerlink" title="拆散循环结构"></a>拆散循环结构</h3><p>上回说到C语言中if这样的结构，在汇编里对应的是怎么回事，实质上，这就是分支结构的程序在汇编里的表现形式。</p>
 <p>实际上，循环结构相比分支结构，本质上，没有多少变化，仅仅是比较合跳转指令的组合的方式与顺序有所不同，所以形成了循环。</p>

@@ -52,15 +52,15 @@
   };
 </script>
 
-  <meta name="description" content="原文链接 回顾上回说道，x86汇编中专门提供了两个指令call和ret，用于实现函数调用的效果。实际上函数调用就是程序跳转，只是在跳转之前，CPU会保存当前所在的位置（即返回地址），当函数返回时，又可以从调用的位置恢复。返回地址保存在一个叫做“堆栈”的地方，堆栈中可以保存很多个返回地址，同时借助于堆栈的进出逻辑，还能实现函数嵌套、递归等效果。 同时前面还简单地提到了函数调用过程中的参数和返回值的传">
+  <meta name="description" content="原文链接 回顾上回说道，x86汇编中专门提供了两个指令call和ret，用于实现函数调用的效果。实际上函数调用就是程序跳转，只是在跳转之前，CPU会保存当前所在的位置（即返回地址），当函数返回时，又可以从调用的位置恢复。返回地址保存在一个叫做“堆栈”的地方，堆栈中可以保存很多个返回地址，同时借助于堆栈的进出逻辑，还能实现函数嵌套、递归等效果。">
 <meta name="keywords" content="编程 发呆">
 <meta property="og:type" content="article">
 <meta property="og:title" content="汇编语言入门八：函数调用（二）">
 <meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;10&#x2F;31&#x2F;%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%85%AB%EF%BC%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89&#x2F;index.html">
 <meta property="og:site_name" content="nonlee - 工作经验分享">
-<meta property="og:description" content="原文链接 回顾上回说道，x86汇编中专门提供了两个指令call和ret，用于实现函数调用的效果。实际上函数调用就是程序跳转，只是在跳转之前，CPU会保存当前所在的位置（即返回地址），当函数返回时，又可以从调用的位置恢复。返回地址保存在一个叫做“堆栈”的地方，堆栈中可以保存很多个返回地址，同时借助于堆栈的进出逻辑，还能实现函数嵌套、递归等效果。 同时前面还简单地提到了函数调用过程中的参数和返回值的传">
+<meta property="og:description" content="原文链接 回顾上回说道，x86汇编中专门提供了两个指令call和ret，用于实现函数调用的效果。实际上函数调用就是程序跳转，只是在跳转之前，CPU会保存当前所在的位置（即返回地址），当函数返回时，又可以从调用的位置恢复。返回地址保存在一个叫做“堆栈”的地方，堆栈中可以保存很多个返回地址，同时借助于堆栈的进出逻辑，还能实现函数嵌套、递归等效果。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-10-31T15:42:05.000Z">
+<meta property="og:updated_time" content="2019-10-31T15:45:49.000Z">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="http://yoursite.com/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%85%AB%EF%BC%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89/">
@@ -279,6 +279,8 @@
       
         <p><a href="https://zhuanlan.zhihu.com/p/24265088" target="_blank" rel="noopener" title="原文链接">原文链接</a></p>
 <h3 id="回顾"><a href="#回顾" class="headerlink" title="回顾"></a>回顾</h3><p>上回说道，x86汇编中专门提供了两个指令call和ret，用于实现函数调用的效果。实际上函数调用就是程序跳转，只是在跳转之前，CPU会保存当前所在的位置（即返回地址），当函数返回时，又可以从调用的位置恢复。返回地址保存在一个叫做“堆栈”的地方，堆栈中可以保存很多个返回地址，同时借助于堆栈的进出逻辑，还能实现函数嵌套、递归等效果。</p>
+<a id="more"></a>
+
 <p>同时前面还简单地提到了函数调用过程中的参数和返回值的传递过程。实际上，在汇编语言中，函数调用的参数和返回值均可以通过寄存器来传送，只要函数内外相互配合，就可以精确地进行参数和返回值传递。</p>
 <h3 id="没那么简单"><a href="#没那么简单" class="headerlink" title="没那么简单"></a>没那么简单</h3><p>到这里，看起来好像函数调用的基本要素都有了，但实际上还是有一些问题的。比如说递归调用这样的场景。通过对递归的研究，你也就能明白前面说到的函数调用机制存在什么样致命的问题。</p>
 <p>好了，先说下，这部分内容，很关键。</p>

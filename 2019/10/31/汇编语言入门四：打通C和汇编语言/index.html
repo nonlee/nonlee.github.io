@@ -52,15 +52,15 @@
   };
 </script>
 
-  <meta name="description" content="link 回顾上回我们把汇编里涉及到的寄存器和内存访问相关的内容说了。先来梳理一下： 寄存器是一些超级小的临时存储器，在CPU里面，存放CPU马上就要用到的数据或者刚处理完的结果要处理的数据太多，寄存器装不下了，需要更多寄存器，但是这玩意贵啊内存可以解决上述问题，但是内存相比寄存器要慢，优点是相对便宜，容量也大 插曲：C语言与汇编语言的关系还有一些疑虑，先暂时解释一下。首先，C语言里编程里，我们从">
+  <meta name="description" content="link 回顾上回我们把汇编里涉及到的寄存器和内存访问相关的内容说了。先来梳理一下： 寄存器是一些超级小的临时存储器，在CPU里面，存放CPU马上就要用到的数据或者刚处理完的结果要处理的数据太多，寄存器装不下了，需要更多寄存器，但是这玩意贵啊内存可以解决上述问题，但是内存相比寄存器要慢，优点是相对便宜，容量也大">
 <meta name="keywords" content="编程 发呆">
 <meta property="og:type" content="article">
 <meta property="og:title" content="汇编语言入门四：打通C和汇编语言">
 <meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2019&#x2F;10&#x2F;31&#x2F;%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%9B%9B%EF%BC%9A%E6%89%93%E9%80%9AC%E5%92%8C%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80&#x2F;index.html">
 <meta property="og:site_name" content="nonlee - 工作经验分享">
-<meta property="og:description" content="link 回顾上回我们把汇编里涉及到的寄存器和内存访问相关的内容说了。先来梳理一下： 寄存器是一些超级小的临时存储器，在CPU里面，存放CPU马上就要用到的数据或者刚处理完的结果要处理的数据太多，寄存器装不下了，需要更多寄存器，但是这玩意贵啊内存可以解决上述问题，但是内存相比寄存器要慢，优点是相对便宜，容量也大 插曲：C语言与汇编语言的关系还有一些疑虑，先暂时解释一下。首先，C语言里编程里，我们从">
+<meta property="og:description" content="link 回顾上回我们把汇编里涉及到的寄存器和内存访问相关的内容说了。先来梳理一下： 寄存器是一些超级小的临时存储器，在CPU里面，存放CPU马上就要用到的数据或者刚处理完的结果要处理的数据太多，寄存器装不下了，需要更多寄存器，但是这玩意贵啊内存可以解决上述问题，但是内存相比寄存器要慢，优点是相对便宜，容量也大">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-10-31T15:17:50.000Z">
+<meta property="og:updated_time" content="2019-10-31T15:45:27.000Z">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="http://yoursite.com/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%9B%9B%EF%BC%9A%E6%89%93%E9%80%9AC%E5%92%8C%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80/">
@@ -280,6 +280,7 @@
         <p><a href="https://zhuanlan.zhihu.com/p/23779935" target="_blank" rel="noopener" title="原文链接">link</a></p>
 <h3 id="回顾"><a href="#回顾" class="headerlink" title="回顾"></a>回顾</h3><p>上回我们把汇编里涉及到的寄存器和内存访问相关的内容说了。先来梳理一下：</p>
 <p>寄存器是一些超级小的临时存储器，在CPU里面，存放CPU马上就要用到的数据或者刚处理完的结果<br>要处理的数据太多，寄存器装不下了，需要更多寄存器，但是这玩意贵啊<br>内存可以解决上述问题，但是内存相比寄存器要慢，优点是相对便宜，容量也大</p>
+<a id="more"></a>
 <h3 id="插曲：C语言与汇编语言的关系"><a href="#插曲：C语言与汇编语言的关系" class="headerlink" title="插曲：C语言与汇编语言的关系"></a>插曲：C语言与汇编语言的关系</h3><p>还有一些疑虑，先暂时解释一下。首先，C语言里编程里，我们从来没有关心过寄存器。汇编语言里突然冒出这么一个东西，学起来好难受。接下来的内容，我们先把C语言和汇编语言的知识，来一次大一统，帮助理解。</p>
 <p>首先我们来看一个C语言程序：</p>
 <figure class="highlight gml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">int <span class="symbol">x</span>, <span class="symbol">y</span>, z;</span><br><span class="line"></span><br><span class="line">int main() &#123;</span><br><span class="line">    <span class="symbol">x</span> = <span class="number">2</span>;</span><br><span class="line">    <span class="symbol">y</span> = <span class="number">3</span>;</span><br><span class="line">    z = <span class="symbol">x</span> + <span class="symbol">y</span>;</span><br><span class="line">    <span class="keywords">return</span> z;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
