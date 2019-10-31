@@ -1140,7 +1140,7 @@ pre .javascript .function {
 .sidebar a,
 .sidebar span.exturl {
   border-bottom-color: #555;
-  color: #999;
+  color: $black-dark;
 }
 .sidebar a:hover,
 .sidebar span.exturl:hover {
@@ -1205,7 +1205,7 @@ pre .javascript .function {
 }
 .links-of-author a::before,
 .links-of-author span.exturl::before {
-  background: #83f726;
+  background: #ff377d;
   border-radius: 50%;
   content: ' ';
   display: inline-block;
