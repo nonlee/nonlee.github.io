@@ -101,6 +101,3 @@ deploy:
   type: git
   repository: git@github.com:nonlee/nonlee.github.io.git
   branch: master
-
-
-
