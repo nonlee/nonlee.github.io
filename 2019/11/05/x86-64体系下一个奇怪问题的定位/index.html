@@ -52,31 +52,37 @@
   };
 </script>
 
-  <meta name="description" content="记录生活的点点滴滴">
-<meta name="keywords" content="编程 发呆">
-<meta property="og:type" content="website">
-<meta property="og:title" content="nonlee - 工作经验分享">
-<meta property="og:url" content="https:&#x2F;&#x2F;www.nonlee.com&#x2F;index.html">
+  <meta name="description" content="作者：张洋 原文链接 问题来源于一个朋友在百度的笔试题。上周六我一个朋友参加了百度举行的专场招聘会，其中第一道笔试题是这样的： 给出下面一段代码12345#include &amp;lt;stdio.h&amp;gt;main() &amp;#123;    double a = 10;     printf(&quot;a = %d\n&quot;, a); &amp;#125;  请问代码的运行结果以及原因。 当朋友参加完笔试和我聊起这道题时，">
+<meta name="keywords" content="浮点数 x86">
+<meta property="og:type" content="article">
+<meta property="og:title" content="x86-64体系下一个奇怪问题的定位">
+<meta property="og:url" content="https:&#x2F;&#x2F;www.nonlee.com&#x2F;2019&#x2F;11&#x2F;05&#x2F;x86-64%E4%BD%93%E7%B3%BB%E4%B8%8B%E4%B8%80%E4%B8%AA%E5%A5%87%E6%80%AA%E9%97%AE%E9%A2%98%E7%9A%84%E5%AE%9A%E4%BD%8D&#x2F;index.html">
 <meta property="og:site_name" content="nonlee - 工作经验分享">
-<meta property="og:description" content="记录生活的点点滴滴">
+<meta property="og:description" content="作者：张洋 原文链接 问题来源于一个朋友在百度的笔试题。上周六我一个朋友参加了百度举行的专场招聘会，其中第一道笔试题是这样的： 给出下面一段代码12345#include &amp;lt;stdio.h&amp;gt;main() &amp;#123;    double a = 10;     printf(&quot;a = %d\n&quot;, a); &amp;#125;  请问代码的运行结果以及原因。 当朋友参加完笔试和我聊起这道题时，">
 <meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https:&#x2F;&#x2F;www.nonlee.com&#x2F;images&#x2F;1.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;www.nonlee.com&#x2F;images&#x2F;2.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;www.nonlee.com&#x2F;images&#x2F;3.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;www.nonlee.com&#x2F;images&#x2F;4.png">
+<meta property="og:updated_time" content="2019-11-05T01:49:32.000Z">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;www.nonlee.com&#x2F;images&#x2F;1.png">
 
-<link rel="canonical" href="https://www.nonlee.com/">
+<link rel="canonical" href="https://www.nonlee.com/2019/11/05/x86-64%E4%BD%93%E7%B3%BB%E4%B8%8B%E4%B8%80%E4%B8%AA%E5%A5%87%E6%80%AA%E9%97%AE%E9%A2%98%E7%9A%84%E5%AE%9A%E4%BD%8D/">
 
 
 <script id="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome: true,
-    isPost: false,
+    isHome: false,
+    isPost: true,
     isPage: false,
     isArchive: false
   };
 </script>
 
-  <title>nonlee - 工作经验分享</title>
+  <title>x86-64体系下一个奇怪问题的定位 | nonlee - 工作经验分享</title>
   
 
 
@@ -203,10 +209,10 @@
             
 
   <div class="posts-expand">
-        
+      
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://www.nonlee.com/2019/11/05/x86-64%E4%BD%93%E7%B3%BB%E4%B8%8B%E4%B8%80%E4%B8%AA%E5%A5%87%E6%80%AA%E9%97%AE%E9%A2%98%E7%9A%84%E5%AE%9A%E4%BD%8D/">
     
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -220,8 +226,7 @@
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2019/11/05/x86-64%E4%BD%93%E7%B3%BB%E4%B8%8B%E4%B8%80%E4%B8%AA%E5%A5%87%E6%80%AA%E9%97%AE%E9%A2%98%E7%9A%84%E5%AE%9A%E4%BD%8D/" class="post-title-link" itemprop="url">x86-64体系下一个奇怪问题的定位</a>
+          x86-64体系下一个奇怪问题的定位
         </h2>
 
         <div class="post-meta">
@@ -277,7 +282,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>作者：张洋</p>
+        <p>作者：张洋</p>
 <p><a href="http://blog.codinglabs.org/articles/trouble-of-x86-64-platform.html" target="_blank" rel="noopener" title="原文链接">原文链接</a></p>
 <p>问题来源于一个朋友在百度的笔试题。上周六我一个朋友参加了百度举行的专场招聘会，其中第一道笔试题是这样的：</p>
 <h3 id="给出下面一段代码"><a href="#给出下面一段代码" class="headerlink" title="给出下面一段代码"></a>给出下面一段代码</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line">main() &#123;</span><br><span class="line">    <span class="keyword">double</span> a = <span class="number">10</span>; </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"a = %d\n"</span>, a); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -336,416 +341,33 @@
 <p>IEEE 754: Standard for Binary Floating-Point Arithmetic</p>
 <p><a href="http://www.cs.virginia.edu/~evans/cs216/guides/x86.html" target="_blank" rel="noopener" title="原文链接">x86 Assembly Guide</a></p>
 
-      
     </div>
 
     
     
     
+
       <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
+          <div class="post-tags">
+              <a href="/tags/%E6%B5%AE%E7%82%B9%E6%95%B0-x86/" rel="tag"># 浮点数 x86</a>
+          </div>
 
         
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://www.nonlee.com/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%B9%9D%EF%BC%9A%E6%80%BB%E7%BB%93%E4%B8%8E%E5%90%8E%E7%BB%AD%EF%BC%88%E9%97%B2%E6%89%AF%EF%BC%89/">
-    
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="ljxhb@126.com">
-      <meta itemprop="description" content="记录生活的点点滴滴">
-    </span>
 
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="nonlee - 工作经验分享">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%B9%9D%EF%BC%9A%E6%80%BB%E7%BB%93%E4%B8%8E%E5%90%8E%E7%BB%AD%EF%BC%88%E9%97%B2%E6%89%AF%EF%BC%89/" class="post-title-link" itemprop="url">汇编语言入门九：总结与后续（闲扯）</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2019-10-31 23:26:04" itemprop="dateCreated datePublished" datetime="2019-10-31T23:26:04+08:00">2019-10-31</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index">
-                    <span itemprop="name">汇编语言</span>
-                  </a>
-                </span>
-            </span>
-
-          
-            <span id="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%B9%9D%EF%BC%9A%E6%80%BB%E7%BB%93%E4%B8%8E%E5%90%8E%E7%BB%AD%EF%BC%88%E9%97%B2%E6%89%AF%EF%BC%89/" class="post-meta-item leancloud_visitors" data-flag-title="汇编语言入门九：总结与后续（闲扯）" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="fa fa-comment-o"></i>
-      </span>
-      <span class="post-meta-item-text">评论数：</span>
-    
-    <a title="valine" href="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%B9%9D%EF%BC%9A%E6%80%BB%E7%BB%93%E4%B8%8E%E5%90%8E%E7%BB%AD%EF%BC%88%E9%97%B2%E6%89%AF%EF%BC%89/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%B9%9D%EF%BC%9A%E6%80%BB%E7%BB%93%E4%B8%8E%E5%90%8E%E7%BB%AD%EF%BC%88%E9%97%B2%E6%89%AF%EF%BC%89/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p><a href="https://zhuanlan.zhihu.com/p/24424432" target="_blank" rel="noopener" title="原文链接">原文链接</a></p>
-<h3 id="回顾"><a href="#回顾" class="headerlink" title="回顾"></a>回顾</h3><p>前面扯了一些个汇编语言的内容，想必读者也应该有了大致的了解。笔者比打算写全面的汇编相关的内容，毕竟目前已经有不少相关的资料了。本入门系列的目的就在于：入门。</p>
-<p>完成了入门的任务，入门系列就暂告一段落了。在此，先来对前面提及的内容做一些回顾。前面说到的各项内容大概涉及：</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%B9%9D%EF%BC%9A%E6%80%BB%E7%BB%93%E4%B8%8E%E5%90%8E%E7%BB%AD%EF%BC%88%E9%97%B2%E6%89%AF%EF%BC%89/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%B9%9D%EF%BC%9A%E6%80%BB%E7%BB%93%E4%B8%8E%E5%90%8E%E7%BB%AD%EF%BC%88%E9%97%B2%E6%89%AF%EF%BC%89/" rel="next" title="汇编语言入门九：总结与后续（闲扯）">
+                  <i class="fa fa-chevron-left"></i> 汇编语言入门九：总结与后续（闲扯）
+                </a>
             </div>
-          <!--/noindex-->
-        
-      
-    </div>
 
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
+            <span class="post-nav-divider"></span>
 
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://www.nonlee.com/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%85%AB%EF%BC%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89/">
-    
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="ljxhb@126.com">
-      <meta itemprop="description" content="记录生活的点点滴滴">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="nonlee - 工作经验分享">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%85%AB%EF%BC%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89/" class="post-title-link" itemprop="url">汇编语言入门八：函数调用（二）</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2019-10-31 23:25:45" itemprop="dateCreated datePublished" datetime="2019-10-31T23:25:45+08:00">2019-10-31</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index">
-                    <span itemprop="name">汇编语言</span>
-                  </a>
-                </span>
-            </span>
-
-          
-            <span id="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%85%AB%EF%BC%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89/" class="post-meta-item leancloud_visitors" data-flag-title="汇编语言入门八：函数调用（二）" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="fa fa-comment-o"></i>
-      </span>
-      <span class="post-meta-item-text">评论数：</span>
-    
-    <a title="valine" href="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%85%AB%EF%BC%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%85%AB%EF%BC%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p><a href="https://zhuanlan.zhihu.com/p/24265088" target="_blank" rel="noopener" title="原文链接">原文链接</a></p>
-<h3 id="回顾"><a href="#回顾" class="headerlink" title="回顾"></a>回顾</h3><p>上回说道，x86汇编中专门提供了两个指令call和ret，用于实现函数调用的效果。实际上函数调用就是程序跳转，只是在跳转之前，CPU会保存当前所在的位置（即返回地址），当函数返回时，又可以从调用的位置恢复。返回地址保存在一个叫做“堆栈”的地方，堆栈中可以保存很多个返回地址，同时借助于堆栈的进出逻辑，还能实现函数嵌套、递归等效果。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%85%AB%EF%BC%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%EF%BC%88%E4%BA%8C%EF%BC%89/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
+            <div class="post-nav-prev post-nav-item">
             </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
+          </div>
       </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://www.nonlee.com/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%B8%83%EF%BC%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%EF%BC%88%E4%B8%80%EF%BC%89/">
     
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="ljxhb@126.com">
-      <meta itemprop="description" content="记录生活的点点滴滴">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="nonlee - 工作经验分享">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%B8%83%EF%BC%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%EF%BC%88%E4%B8%80%EF%BC%89/" class="post-title-link" itemprop="url">汇编语言入门七：函数调用（一）</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2019-10-31 23:25:31" itemprop="dateCreated datePublished" datetime="2019-10-31T23:25:31+08:00">2019-10-31</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index">
-                    <span itemprop="name">汇编语言</span>
-                  </a>
-                </span>
-            </span>
-
-          
-            <span id="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%B8%83%EF%BC%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%EF%BC%88%E4%B8%80%EF%BC%89/" class="post-meta-item leancloud_visitors" data-flag-title="汇编语言入门七：函数调用（一）" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="fa fa-comment-o"></i>
-      </span>
-      <span class="post-meta-item-text">评论数：</span>
-    
-    <a title="valine" href="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%B8%83%EF%BC%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%EF%BC%88%E4%B8%80%EF%BC%89/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%B8%83%EF%BC%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%EF%BC%88%E4%B8%80%EF%BC%89/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p><a href="https://zhuanlan.zhihu.com/p/24129384" target="_blank" rel="noopener" title="原文链接">原文链接</a></p>
-<p>最近忙了一阵，好几天没更了，不好意思，我来晚了。</p>
-<p>转入正题，当在汇编中进行函数调用，是一种什么样的体验？</p>
-<h3 id="想象"><a href="#想象" class="headerlink" title="想象"></a>想象</h3><p>想象你在计算一个非常复杂的数学题，在算到一半的时候，你需要一个数据，而这个数据需要套用一个比较复杂的公式才能算出来，怎么办？</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E4%B8%83%EF%BC%9A%E5%87%BD%E6%95%B0%E8%B0%83%E7%94%A8%EF%BC%88%E4%B8%80%EF%BC%89/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://www.nonlee.com/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%85%AD%EF%BC%9A%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6%EF%BC%88%E4%BA%8C%EF%BC%89/">
-    
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="ljxhb@126.com">
-      <meta itemprop="description" content="记录生活的点点滴滴">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="nonlee - 工作经验分享">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%85%AD%EF%BC%9A%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6%EF%BC%88%E4%BA%8C%EF%BC%89/" class="post-title-link" itemprop="url">汇编语言入门六：流程控制（二）</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2019-10-31 23:24:53" itemprop="dateCreated datePublished" datetime="2019-10-31T23:24:53+08:00">2019-10-31</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index">
-                    <span itemprop="name">汇编语言</span>
-                  </a>
-                </span>
-            </span>
-
-          
-            <span id="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%85%AD%EF%BC%9A%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6%EF%BC%88%E4%BA%8C%EF%BC%89/" class="post-meta-item leancloud_visitors" data-flag-title="汇编语言入门六：流程控制（二）" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="fa fa-comment-o"></i>
-      </span>
-      <span class="post-meta-item-text">评论数：</span>
-    
-    <a title="valine" href="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%85%AD%EF%BC%9A%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6%EF%BC%88%E4%BA%8C%EF%BC%89/#comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%85%AD%EF%BC%9A%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6%EF%BC%88%E4%BA%8C%EF%BC%89/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p><a href="https://zhuanlan.zhihu.com/p/23902265" target="_blank" rel="noopener" title="原文链接">原文链接</a></p>
-<h3 id="回顾"><a href="#回顾" class="headerlink" title="回顾"></a>回顾</h3><p>前面说到在汇编语言中实现类似C语言if-else if-else这样的结构，</p>
-<p>实际上，在汇编里面，我们并不关心if了，取而代之的是两种基本的指令：</p>
-<ul>
-<li>比较</li>
-<li>跳转</li>
-</ul>
-<p>这两种指令即可组成最基本的分支程序结构，虽然跳转指令非常多，但是我们已经有套路了，怎么跳转都不怕了。当然，在编程环境中仅有分支还不够的，我们知道C语言中除了分支结构之外，还有循环这个最基本也是最常用的形式。正好，这也是本节话题的主角。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2019/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%85%A5%E9%97%A8%E5%85%AD%EF%BC%9A%E6%B5%81%E7%A8%8B%E6%8E%A7%E5%88%B6%EF%BC%88%E4%BA%8C%EF%BC%89/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
   </article>
   
   
@@ -753,15 +375,10 @@
 
   </div>
 
-  
-  <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
-  </nav>
-
-
 
           </div>
           
+    <div class="comments" id="comments"></div>
 
         </div>
           
@@ -786,6 +403,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#给出下面一段代码"><span class="nav-number">1.</span> <span class="nav-text">给出下面一段代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#最初分析"><span class="nav-number">2.</span> <span class="nav-text">最初分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#奇怪的结果"><span class="nav-number">3.</span> <span class="nav-text">奇怪的结果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#定位问题"><span class="nav-number">4.</span> <span class="nav-text">定位问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考文献"><span class="nav-number">6.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
