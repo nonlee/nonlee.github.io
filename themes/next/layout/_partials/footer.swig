@@ -1,6 +1,6 @@
 {%- if theme.footer.beian.enable %}
   <div class="beian">
-    {{- next_url(theme.footer.beian.icp + ' ') }}
+    {{- next_url('',theme.footer.beian.icp + ' ') }}
   </div>
 {%- endif %}
 
