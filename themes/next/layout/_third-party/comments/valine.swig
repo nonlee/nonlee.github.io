@@ -1,4 +1,4 @@
-{%- set valine_uri = theme.vendors.valine or '//cdn.jsdelivr.net/npm/valine@1.3.10/dist/Valine.min.js' %}
+{%- set valine_uri = theme.vendors.valine or '//cdn.jsdelivr.net/npm/valine@1.4.14/dist/Valine.min.js' %}
 
 <script>
 NexT.utils.getScript('{{ valine_uri }}', () => {
