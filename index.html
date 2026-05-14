@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 4.2.1">
+<meta name="generator" content="Hexo 8.1.2">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon-64.ico">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.ico">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16.ico">
@@ -12,7 +12,7 @@
 
 <link rel="stylesheet" href="/css/main.css">
 
-<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="https://fonts.cat.net/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
 <link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
   <link rel="stylesheet" href="/lib/pace/pace-theme-bounce.min.css">
   <script src="/lib/pace/pace.min.js"></script>
@@ -279,9 +279,9 @@
 
       
           <p>作者：张洋</p>
-<p><a href="http://blog.codinglabs.org/articles/trouble-of-x86-64-platform.html" target="_blank" rel="noopener" title="原文链接">原文链接</a></p>
+<p><a target="_blank" rel="noopener" href="http://blog.codinglabs.org/articles/trouble-of-x86-64-platform.html" title="原文链接">原文链接</a></p>
 <p>问题来源于一个朋友在百度的笔试题。上周六我一个朋友参加了百度举行的专场招聘会，其中第一道笔试题是这样的：</p>
-<h3 id="给出下面一段代码"><a href="#给出下面一段代码" class="headerlink" title="给出下面一段代码"></a>给出下面一段代码</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line">main() &#123;</span><br><span class="line">    <span class="keyword">double</span> a = <span class="number">10</span>; </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"a = %d\n"</span>, a); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="给出下面一段代码"><a href="#给出下面一段代码" class="headerlink" title="给出下面一段代码"></a>给出下面一段代码</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="built_in">main</span>() &#123;</span><br><span class="line">    <span class="type">double</span> a = <span class="number">10</span>; </span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;a = %d\n&quot;</span>, a); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2019/11/05/x86-64%E4%BD%93%E7%B3%BB%E4%B8%8B%E4%B8%80%E4%B8%AA%E5%A5%87%E6%80%AA%E9%97%AE%E9%A2%98%E7%9A%84%E5%AE%9A%E4%BD%8D/#more" rel="contents">
@@ -378,7 +378,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><a href="https://zhuanlan.zhihu.com/p/24424432" target="_blank" rel="noopener" title="原文链接">原文链接</a></p>
+          <p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/24424432" title="原文链接">原文链接</a></p>
 <h3 id="回顾"><a href="#回顾" class="headerlink" title="回顾"></a>回顾</h3><p>前面扯了一些个汇编语言的内容，想必读者也应该有了大致的了解。笔者比打算写全面的汇编相关的内容，毕竟目前已经有不少相关的资料了。本入门系列的目的就在于：入门。</p>
 <p>完成了入门的任务，入门系列就暂告一段落了。在此，先来对前面提及的内容做一些回顾。前面说到的各项内容大概涉及：</p>
           <!--noindex-->
@@ -477,7 +477,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><a href="https://zhuanlan.zhihu.com/p/24265088" target="_blank" rel="noopener" title="原文链接">原文链接</a></p>
+          <p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/24265088" title="原文链接">原文链接</a></p>
 <h3 id="回顾"><a href="#回顾" class="headerlink" title="回顾"></a>回顾</h3><p>上回说道，x86汇编中专门提供了两个指令call和ret，用于实现函数调用的效果。实际上函数调用就是程序跳转，只是在跳转之前，CPU会保存当前所在的位置（即返回地址），当函数返回时，又可以从调用的位置恢复。返回地址保存在一个叫做“堆栈”的地方，堆栈中可以保存很多个返回地址，同时借助于堆栈的进出逻辑，还能实现函数嵌套、递归等效果。</p>
           <!--noindex-->
             <div class="post-button">
@@ -575,7 +575,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><a href="https://zhuanlan.zhihu.com/p/24129384" target="_blank" rel="noopener" title="原文链接">原文链接</a></p>
+          <p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/24129384" title="原文链接">原文链接</a></p>
 <p>最近忙了一阵，好几天没更了，不好意思，我来晚了。</p>
 <p>转入正题，当在汇编中进行函数调用，是一种什么样的体验？</p>
 <h3 id="想象"><a href="#想象" class="headerlink" title="想象"></a>想象</h3><p>想象你在计算一个非常复杂的数学题，在算到一半的时候，你需要一个数据，而这个数据需要套用一个比较复杂的公式才能算出来，怎么办？</p>
@@ -675,7 +675,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><a href="https://zhuanlan.zhihu.com/p/23902265" target="_blank" rel="noopener" title="原文链接">原文链接</a></p>
+          <p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/23902265" title="原文链接">原文链接</a></p>
 <h3 id="回顾"><a href="#回顾" class="headerlink" title="回顾"></a>回顾</h3><p>前面说到在汇编语言中实现类似C语言if-else if-else这样的结构，</p>
 <p>实际上，在汇编里面，我们并不关心if了，取而代之的是两种基本的指令：</p>
 <ul>
@@ -801,7 +801,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2022</span>
+  <span itemprop="copyrightYear">2026</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>
