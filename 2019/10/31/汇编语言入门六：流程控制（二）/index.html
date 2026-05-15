@@ -282,8 +282,8 @@
 <p>跑题了，先大致总结一下这个程序的关键部分到底在干什么：</p>
 <ul>
 <li>1 比较i和10的大小</li>
-<li>2 如果i &lt;= 10则执行代码块，并回到(1)</li>
-<li>3 如果不满足 i &lt;= 10，则跳过代码块</li>
+<li>2 如果i &lt;&#x3D; 10则执行代码块，并回到(1)</li>
+<li>3 如果不满足 i &lt;&#x3D; 10，则跳过代码块</li>
 </ul>
 <p>好了，按照这个逻辑，在C语言中不使用循环怎么实现？其实也非常简单：</p>
 <figure class="highlight fortran"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">int</span> <span class="built_in">sum</span> = <span class="number">10</span>;</span><br><span class="line"><span class="built_in">int</span> i = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">_start:</span><br><span class="line"><span class="keyword">if</span>( i &lt;= <span class="number">10</span> ) &#123;</span><br><span class="line">    <span class="built_in">sum</span> = <span class="built_in">sum</span> + i;</span><br><span class="line">    i = i + <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">goto</span> _start;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -437,10 +437,10 @@
 </div>
   <div class="links-of-author motion-element">
       <span class="links-of-author-item">
-        <a href="https://github.com/nonlee" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;nonlee" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+        <a href="https://github.com/nonlee" title="GitHub &rarr; https:&#x2F;&#x2F;github.com&#x2F;nonlee" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
       </span>
       <span class="links-of-author-item">
-        <a href="mailto:ljxhb@126.com" title="E-Mail &amp;rarr; mailto:ljxhb@126.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+        <a href="mailto:ljxhb@126.com" title="E-Mail &rarr; mailto:ljxhb@126.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
       </span>
   </div>
 

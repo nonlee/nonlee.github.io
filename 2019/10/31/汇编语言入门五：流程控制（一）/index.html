@@ -321,7 +321,7 @@
 
 <p>先细细解释一下：</p>
 <p>第一条，cmp指令，专门用来对两个数进行比较<br>第二条，条件跳转指令，当前面的比较结果为“小于或等于”的时候就跳转，否则不跳转<br>到这里，至少上面这个程序，每一条指令都是很清楚的。只是你关心的是下面的问题：</p>
-<p>我会写a &gt; 10的情况了，那么a &lt; 10怎么办呢？a == 10怎么办呢？a &lt;= 10怎么办呢？a &gt;= 10怎么办呢？<br>凉拌炒鸡蛋。</p>
+<p>我会写a &gt; 10的情况了，那么a &lt; 10怎么办呢？a &#x3D;&#x3D; 10怎么办呢？a &lt;&#x3D; 10怎么办呢？a &gt;&#x3D; 10怎么办呢？<br>凉拌炒鸡蛋。</p>
 <p>别急，先说套路。上面的C语言代码是这样的：</p>
 <figure class="highlight abnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">if ( a &gt; <span class="number">10</span> ) &#123;</span><br><span class="line">    a <span class="operator">=</span> a - <span class="number">10</span><span class="comment">;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -336,7 +336,7 @@
 <figure class="highlight gml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">int main() &#123;</span><br><span class="line">    int <span class="variable language_">x</span> = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">if</span> ( <span class="variable language_">x</span> &gt; <span class="number">100</span> ) &#123;</span><br><span class="line">        <span class="variable language_">x</span> = <span class="variable language_">x</span> - <span class="number">20</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="variable language_">x</span> = <span class="variable language_">x</span> + <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="variable language_">x</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>好了，这里按照前面的思路，在汇编语言里面，关键就是下面几点：</p>
-<p>对x对应的东西与100进行比较<br>何时跳过if块中的减法<br>x = x + 1是无论如何都会执行的<br>按照前面的代码，稍作类比，很容易地就能写出下面的代码来：</p>
+<p>对x对应的东西与100进行比较<br>何时跳过if块中的减法<br>x &#x3D; x + 1是无论如何都会执行的<br>按照前面的代码，稍作类比，很容易地就能写出下面的代码来：</p>
 <figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">global</span> main</span><br><span class="line"><span class="symbol"></span></span><br><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, <span class="number">1</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">cmp</span> <span class="built_in">eax</span>, <span class="number">100</span></span><br><span class="line">    <span class="keyword">jle</span> xiao_deng_yu_100</span><br><span class="line">    <span class="keyword">sub</span> <span class="built_in">eax</span>, <span class="number">20</span></span><br><span class="line"><span class="symbol">    </span></span><br><span class="line"><span class="symbol">xiao_deng_yu_100:</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">ret</span></span><br></pre></td></tr></table></figure>
 
 <p>把程序结合着前面的C代码进行对比，参考前面说的if在汇编里组织的套路，这个程序就很容易理解了。你还可以尝试把</p>
@@ -347,7 +347,7 @@
 
 <p>试试程序的执行逻辑是不是发生了变化？</p>
 <h3 id="再来套路"><a href="#再来套路" class="headerlink" title="再来套路"></a>再来套路</h3><p>前面说到了if在汇编中的组织方式，接下来，问题就更加复杂了：</p>
-<p>我会写a &gt; 10的情况了，那么a &lt; 10怎么办呢？a == 10怎么办呢？a &lt;= 10怎么办呢？a &gt;= 10怎么办呢？<br>凉拌炒鸡蛋。</p>
+<p>我会写a &gt; 10的情况了，那么a &lt; 10怎么办呢？a &#x3D;&#x3D; 10怎么办呢？a &lt;&#x3D; 10怎么办呢？a &gt;&#x3D; 10怎么办呢？<br>凉拌炒鸡蛋。</p>
 <p>前面实际上只提到了两个流程控制相关的指令：</p>
 <figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">jmp</span></span><br><span class="line"><span class="keyword">jle</span></span><br></pre></td></tr></table></figure>
 
@@ -510,10 +510,10 @@
 </div>
   <div class="links-of-author motion-element">
       <span class="links-of-author-item">
-        <a href="https://github.com/nonlee" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;nonlee" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+        <a href="https://github.com/nonlee" title="GitHub &rarr; https:&#x2F;&#x2F;github.com&#x2F;nonlee" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
       </span>
       <span class="links-of-author-item">
-        <a href="mailto:ljxhb@126.com" title="E-Mail &amp;rarr; mailto:ljxhb@126.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+        <a href="mailto:ljxhb@126.com" title="E-Mail &rarr; mailto:ljxhb@126.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
       </span>
   </div>
 

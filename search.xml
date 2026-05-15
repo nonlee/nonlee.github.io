@@ -15,14 +15,14 @@
 <p> <img src="/images/1.png" alt="1.png"></p>
 <p>各位段意义如下：</p>
 <ul>
-<li>S = 0表示正数，S = 1表示负数。</li>
-<li>E可以看成一个无符号整数，当其二进制位为全0或全1时，表示非规约浮点数或特殊值，此处不讨论，仅讨论其不全为0或全为1的情况。当E不全为零或全为1时，浮点数是规约的，此时E表示以2为底的指数加上一个固定的偏移量。偏移量被定义为2(E)−1−1，其中(E)表示E所占的比特数，此处为11，所以偏移量为2(11)−1−1=1023。因此实际的指数值要在E的基础上减1023，例如E的位表示是10000000000（十进制1024），则表示实际指数值为1024−1023=1。</li>
-<li>M在规约形式下，表示一个二进制小数，实际值是这个小数加1。例如，M=101000…0表示2−1+2−3+1=1.625。</li>
+<li>S &#x3D; 0表示正数，S &#x3D; 1表示负数。</li>
+<li>E可以看成一个无符号整数，当其二进制位为全0或全1时，表示非规约浮点数或特殊值，此处不讨论，仅讨论其不全为0或全为1的情况。当E不全为零或全为1时，浮点数是规约的，此时E表示以2为底的指数加上一个固定的偏移量。偏移量被定义为2(E)−1−1，其中(E)表示E所占的比特数，此处为11，所以偏移量为2(11)−1−1&#x3D;1023。因此实际的指数值要在E的基础上减1023，例如E的位表示是10000000000（十进制1024），则表示实际指数值为1024−1023&#x3D;1。</li>
+<li>M在规约形式下，表示一个二进制小数，实际值是这个小数加1。例如，M&#x3D;101000…0表示2−1+2−3+1&#x3D;1.625。</li>
 </ul>
 <p>一个规约的IEEE双精度浮点数的实际值为：</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">V=(−1)S×2E−1023×(1+M)</span><br></pre></td></tr></table></figure>
 
-<p>根据以上分析，10可以表示为1.25×8，因此取S = 0，E = 10000000010，M = 0100…0，则整个浮点数的二进制表示为：</p>
+<p>根据以上分析，10可以表示为1.25×8，因此取S &#x3D; 0，E &#x3D; 10000000010，M &#x3D; 0100…0，则整个浮点数的二进制表示为：</p>
 <figure class="highlight dns"><table><tr><td class="code"><pre><span class="line"><span class="number">01000000</span>, <span class="number">00100100</span>, <span class="number">00000000</span>, <span class="number">00000000</span>, <span class="number">00000000</span>, <span class="number">00000000</span>, <span class="number">00000000</span>, <span class="number">00000000</span></span><br></pre></td></tr></table></figure>
 
 
@@ -30,7 +30,7 @@
 <p>如果是寄存器，则printf会取低四字节。</p>
 <p>如果是栈，在小端序中，高字节存放在高地址，低字节放在低地址，而栈是从高地址向低地址增长的，所以入栈后每个字节的位置如下：</p>
 <p> <img src="/images/2.png" alt="2.png"></p>
-<p>printf会从低地址到高地址读取4个字节当做int型数据去解释并输出，所以，经过分析这段代码的输出应该为“a = 0”。</p>
+<p>printf会从低地址到高地址读取4个字节当做int型数据去解释并输出，所以，经过分析这段代码的输出应该为“a &#x3D; 0”。</p>
 <h3 id="奇怪的结果"><a href="#奇怪的结果" class="headerlink" title="奇怪的结果"></a>奇怪的结果</h3><p>分析完了，下一步当然是通过实践验证，我在我的VPS上（CentOS 64位）用gcc编译。结果非常出乎意料，不但不是0，而且每次运行的结果都不一样！（见下图）</p>
 <p> <img src="/images/3.png" alt="3.png"></p>
 <h3 id="定位问题"><a href="#定位问题" class="headerlink" title="定位问题"></a>定位问题</h3><p>在试图解释这个奇怪现象时，我最初从C的层面上进行了诸多分析，结果都无法分析出问题所在，所以我怀疑出现这个问题的原因在机器代码层面。于是我将其汇编代码打出来：</p>
@@ -56,7 +56,7 @@
 <p> <img src="/images/4.png" alt="4.png"></p>
 <p>最后，我用-m32指令编译成32位代码，结果也固定为0，并且汇编代码中没有看到mmx相关寄存器的使用。然后，我手工用movl将12345送入esi，结果为输出总为12345，证明printf默认认为第一个int参数放在esi中。至此问题原因基本确定。</p>
 <h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>从上述过程知道，最初的笔试代码，在64位环境下，浮点数参数被送入mmx寄存器，而%d告诉printf第一个参数为int类型，所以printf仍然去默认的esi中寻找第一个int参数，所以从esi中读取了一个未确定的32bit数据并按int解释，最终造成结果的不确定。</p>
-<p>所以这道题的正确答案（小端序）是，在32位下，输出为“a = 0”；在64位启用SIMD情况下，输出结果不确定。</p>
+<p>所以这道题的正确答案（小端序）是，在32位下，输出为“a &#x3D; 0”；在64位启用SIMD情况下，输出结果不确定。</p>
 <p>特别需要说明的是，由于汇编代码在不同CPU、不同操作系统、不同gcc选项下可能会有差异，所以你得到的汇编代码未必和我的相同，但原因是一致的：64位环境下int和double放置的位置不同，double告诉a放到一个地方，而%d告诉printf到另一个地方取数据，结果自然无法取到变量a。</p>
 <p>由此也可以看出，printf最好不要将占位符和实际参数设为不同的类型，因为这样会造成不可预料的结果。</p>
 <h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><p>System V Application Binary Interface AMD64 Architecture Processor Supplement</p>
@@ -79,7 +79,7 @@
 <span id="more"></span>
 
 <h3 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h3><p>Ubuntu</p>
-<p>gcc/nasm</p>
+<p>gcc&#x2F;nasm</p>
 <p>也就是说，你先安装一个能正常使用的Ubuntu再说吧，然后顺便熟悉一些相关的概念和操作。</p>
 <p>后面若没有特殊说明，那我们讨论的问题都是在这个软件环境下。</p>
 <h3 id="环境检查"><a href="#环境检查" class="headerlink" title="环境检查"></a>环境检查</h3><p>先打开终端，安装所需软件（注意$开头的才是命令，并且$并不属于命令的一部分）：</p>
@@ -99,7 +99,6 @@
 <p>首先准备个文件，暂且叫做first.asm吧，然后把下面的代码搞进去：</p>
 <figure class="highlight x86asm"><table><tr><td class="code"><pre><span class="line"><span class="meta">global</span> main</span><br><span class="line"><span class="symbol"></span></span><br><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, <span class="number">0</span></span><br><span class="line">    <span class="keyword">ret</span></span><br></pre></td></tr></table></figure>
 
-
 <p>好了程序写完了，你能感受到这里的0就是上面C代码里的0，说明你有学习汇编的天赋。</p>
 <p>OK接下来就要编译运行了。来一堆命令先：</p>
 <figure class="highlight applescript"><table><tr><td class="code"><pre><span class="line">$ nasm -f elf <span class="keyword">first</span>.asm -o <span class="keyword">first</span>.o</span><br><span class="line">$ gcc -m32 <span class="keyword">first</span>.o -o <span class="keyword">first</span></span><br></pre></td></tr></table></figure>
@@ -115,7 +114,6 @@
 
 <p>别问我为何上面的命令后面多了一串奇怪的代码，你自己把它删掉之后再看就能猜出来是干啥的了。如果还有疑惑，可以再次做实验确认，比如把代码里的0改成1。变成这样：</p>
 <figure class="highlight x86asm"><table><tr><td class="code"><pre><span class="line"><span class="meta">global</span> main</span><br><span class="line"><span class="symbol"></span></span><br><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">ret</span></span><br></pre></td></tr></table></figure>
-
 
 <p>再按照同样的套路来编译运行：</p>
 <figure class="highlight applescript"><table><tr><td class="code"><pre><span class="line">$ nasm -f elf <span class="keyword">first</span>.asm -o <span class="keyword">first</span>.o</span><br><span class="line">$ gcc -m32 <span class="keyword">first</span>.o -o <span class="keyword">first</span></span><br><span class="line">$ ./<span class="keyword">first</span> ; echo $?</span><br><span class="line"><span class="number">1</span></span><br></pre></td></tr></table></figure>
@@ -159,7 +157,7 @@
 <li>让eax和ebx的值都为0</li>
 <li>调用eax_plus_1s，再调用eax_plus_1s</li>
 <li>调用ebx_plus_1s</li>
-<li>执行eax = eax + ebx</li>
+<li>执行eax &#x3D; eax + ebx</li>
 </ol>
 <p>上述的两个函数也非常简单，分别就是给eax和ebx加了1。所以，这个程序其实也就是换了个花样给寄存器增加1而已，纯粹演示。</p>
 <p>这里出现了一个陌生指令call，这个指令是函数调用专用的指令，从程序的行为上看应该是让程序的执行流程发生跳转。前面说到了跳转指令jmp，这里是call，这两个指令都能让CPU的eip寄存器发生突然变化，然后程序就一下子跳到别的地方去了。但是这两个有区别：</p>
@@ -352,7 +350,7 @@
 <figure class="highlight cmake"><table><tr><td class="code"><pre><span class="line">$ nasm -f elf <span class="keyword">test</span>.asm -o <span class="keyword">test</span>.o ; gcc -m32 <span class="keyword">test</span>.o -o <span class="keyword">test</span></span><br></pre></td></tr></table></figure>
 
 <p>运行：</p>
-<p>$ ./test ; echo $?<br>3<br>OK，到这里，程序是对的了。开始动刀子，使用gdb：</p>
+<p>$ .&#x2F;test ; echo $?<br>3<br>OK，到这里，程序是对的了。开始动刀子，使用gdb：</p>
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">gdb ./test</span></span><br></pre></td></tr></table></figure>
 
 <p>启动之后，你会看到终端编程变成这样了：</p>
@@ -498,12 +496,10 @@
 <p>老套路，保存成文件，比如叫做nmb.asm，然后编译运行：</p>
 <figure class="highlight crystal"><table><tr><td class="code"><pre><span class="line"><span class="variable">$ </span>nasm -f elf nmb.<span class="keyword">asm</span> -o nmb.o</span><br><span class="line"><span class="variable">$ </span>gcc -m32 nmb.o -o nmb</span><br><span class="line"><span class="variable">$ </span>./nmb ; echo <span class="variable">$?</span></span><br><span class="line"><span class="number">3</span></span><br></pre></td></tr></table></figure>
 
-<p>如果你能看出来这里面的端倪，说明你是一个聪明伶俐的天才。不就是做了个算术题1+2=3么。</p>
+<p>如果你能看出来这里面的端倪，说明你是一个聪明伶俐的天才。不就是做了个算术题1+2&#x3D;3么。</p>
 <p>好了我们来看一下这个程序。里面的eax就是指代的寄存器。同理ebx也是一个寄存器。也就是这个CPU在做计算题的时候至少能够记住两个数字，实际上，它有更多寄存器，稍后再慢慢说。</p>
 <p>OK。既然找到一些感觉了，就继续胡乱地拍出一大堆程序来先玩个够吧：</p>
 <figure class="highlight x86asm"><table><tr><td class="code"><pre><span class="line"><span class="meta">global</span> main</span><br><span class="line"><span class="symbol"></span></span><br><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="number">2</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="number">3</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="number">4</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="number">5</span></span><br><span class="line">    <span class="keyword">ret</span></span><br></pre></td></tr></table></figure>
-
-
 
 <figure class="highlight x86asm"><table><tr><td class="code"><pre><span class="line"><span class="meta">global</span> main</span><br><span class="line"><span class="symbol"></span></span><br><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">ebx</span>, <span class="number">2</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">ecx</span>, <span class="number">3</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">edx</span>, <span class="number">4</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="built_in">ebx</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="built_in">ecx</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="built_in">edx</span></span><br><span class="line">    <span class="keyword">ret</span></span><br></pre></td></tr></table></figure>
 
@@ -605,7 +601,7 @@
 
 <p>先细细解释一下：</p>
 <p>第一条，cmp指令，专门用来对两个数进行比较<br>第二条，条件跳转指令，当前面的比较结果为“小于或等于”的时候就跳转，否则不跳转<br>到这里，至少上面这个程序，每一条指令都是很清楚的。只是你关心的是下面的问题：</p>
-<p>我会写a &gt; 10的情况了，那么a &lt; 10怎么办呢？a == 10怎么办呢？a &lt;= 10怎么办呢？a &gt;= 10怎么办呢？<br>凉拌炒鸡蛋。</p>
+<p>我会写a &gt; 10的情况了，那么a &lt; 10怎么办呢？a &#x3D;&#x3D; 10怎么办呢？a &lt;&#x3D; 10怎么办呢？a &gt;&#x3D; 10怎么办呢？<br>凉拌炒鸡蛋。</p>
 <p>别急，先说套路。上面的C语言代码是这样的：</p>
 <figure class="highlight abnf"><table><tr><td class="code"><pre><span class="line">if ( a &gt; <span class="number">10</span> ) &#123;</span><br><span class="line">    a <span class="operator">=</span> a - <span class="number">10</span><span class="comment">;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -620,7 +616,7 @@
 <figure class="highlight gml"><table><tr><td class="code"><pre><span class="line">int main() &#123;</span><br><span class="line">    int <span class="variable language_">x</span> = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">if</span> ( <span class="variable language_">x</span> &gt; <span class="number">100</span> ) &#123;</span><br><span class="line">        <span class="variable language_">x</span> = <span class="variable language_">x</span> - <span class="number">20</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="variable language_">x</span> = <span class="variable language_">x</span> + <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="variable language_">x</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>好了，这里按照前面的思路，在汇编语言里面，关键就是下面几点：</p>
-<p>对x对应的东西与100进行比较<br>何时跳过if块中的减法<br>x = x + 1是无论如何都会执行的<br>按照前面的代码，稍作类比，很容易地就能写出下面的代码来：</p>
+<p>对x对应的东西与100进行比较<br>何时跳过if块中的减法<br>x &#x3D; x + 1是无论如何都会执行的<br>按照前面的代码，稍作类比，很容易地就能写出下面的代码来：</p>
 <figure class="highlight x86asm"><table><tr><td class="code"><pre><span class="line"><span class="meta">global</span> main</span><br><span class="line"><span class="symbol"></span></span><br><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, <span class="number">1</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">cmp</span> <span class="built_in">eax</span>, <span class="number">100</span></span><br><span class="line">    <span class="keyword">jle</span> xiao_deng_yu_100</span><br><span class="line">    <span class="keyword">sub</span> <span class="built_in">eax</span>, <span class="number">20</span></span><br><span class="line"><span class="symbol">    </span></span><br><span class="line"><span class="symbol">xiao_deng_yu_100:</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">ret</span></span><br></pre></td></tr></table></figure>
 
 <p>把程序结合着前面的C代码进行对比，参考前面说的if在汇编里组织的套路，这个程序就很容易理解了。你还可以尝试把</p>
@@ -631,7 +627,7 @@
 
 <p>试试程序的执行逻辑是不是发生了变化？</p>
 <h3 id="再来套路"><a href="#再来套路" class="headerlink" title="再来套路"></a>再来套路</h3><p>前面说到了if在汇编中的组织方式，接下来，问题就更加复杂了：</p>
-<p>我会写a &gt; 10的情况了，那么a &lt; 10怎么办呢？a == 10怎么办呢？a &lt;= 10怎么办呢？a &gt;= 10怎么办呢？<br>凉拌炒鸡蛋。</p>
+<p>我会写a &gt; 10的情况了，那么a &lt; 10怎么办呢？a &#x3D;&#x3D; 10怎么办呢？a &lt;&#x3D; 10怎么办呢？a &gt;&#x3D; 10怎么办呢？<br>凉拌炒鸡蛋。</p>
 <p>前面实际上只提到了两个流程控制相关的指令：</p>
 <figure class="highlight x86asm"><table><tr><td class="code"><pre><span class="line"><span class="keyword">jmp</span></span><br><span class="line"><span class="keyword">jle</span></span><br></pre></td></tr></table></figure>
 
@@ -817,8 +813,8 @@
 <p>跑题了，先大致总结一下这个程序的关键部分到底在干什么：</p>
 <ul>
 <li>1 比较i和10的大小</li>
-<li>2 如果i &lt;= 10则执行代码块，并回到(1)</li>
-<li>3 如果不满足 i &lt;= 10，则跳过代码块</li>
+<li>2 如果i &lt;&#x3D; 10则执行代码块，并回到(1)</li>
+<li>3 如果不满足 i &lt;&#x3D; 10，则跳过代码块</li>
 </ul>
 <p>好了，按照这个逻辑，在C语言中不使用循环怎么实现？其实也非常简单：</p>
 <figure class="highlight fortran"><table><tr><td class="code"><pre><span class="line"><span class="built_in">int</span> <span class="built_in">sum</span> = <span class="number">10</span>;</span><br><span class="line"><span class="built_in">int</span> i = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">_start:</span><br><span class="line"><span class="keyword">if</span>( i &lt;= <span class="number">10</span> ) &#123;</span><br><span class="line">    <span class="built_in">sum</span> = <span class="built_in">sum</span> + i;</span><br><span class="line">    i = i + <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">goto</span> _start;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -928,7 +924,7 @@
 <figure class="highlight x86asm"><table><tr><td class="code"><pre><span class="line"><span class="keyword">mov</span> <span class="built_in">eax</span>, [x]</span><br><span class="line"><span class="keyword">mov</span> <span class="built_in">ebx</span>, [y]</span><br><span class="line"><span class="keyword">add</span> <span class="built_in">eax</span>, <span class="built_in">ebx</span></span><br><span class="line"><span class="keyword">mov</span> [z], <span class="built_in">eax</span></span><br></pre></td></tr></table></figure>
 
 <p>好了，这段代码应该可以看懂吧，简单说一下思路：</p>
-<p>把x和y对应的内存中的内容分别放到eax和ebx中去<br>进行形如eax = eax + ebx的加法，最终的和存放在eax中<br>再将eax中的内容存放到z对应的内存中去<br>最后，我们还有一个事情需要处理，也就是返回语句：</p>
+<p>把x和y对应的内存中的内容分别放到eax和ebx中去<br>进行形如eax &#x3D; eax + ebx的加法，最终的和存放在eax中<br>再将eax中的内容存放到z对应的内存中去<br>最后，我们还有一个事情需要处理，也就是返回语句：</p>
 <figure class="highlight kotlin"><table><tr><td class="code"><pre><span class="line"><span class="keyword">return</span> z;</span><br></pre></td></tr></table></figure>
 
 <p>这个也很好办，按照约定，eax中的值，就是函数的返回值：</p>

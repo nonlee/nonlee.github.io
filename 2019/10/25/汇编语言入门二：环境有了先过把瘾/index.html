@@ -287,12 +287,10 @@
 <p>老套路，保存成文件，比如叫做nmb.asm，然后编译运行：</p>
 <figure class="highlight crystal"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ </span>nasm -f elf nmb.<span class="keyword">asm</span> -o nmb.o</span><br><span class="line"><span class="variable">$ </span>gcc -m32 nmb.o -o nmb</span><br><span class="line"><span class="variable">$ </span>./nmb ; echo <span class="variable">$?</span></span><br><span class="line"><span class="number">3</span></span><br></pre></td></tr></table></figure>
 
-<p>如果你能看出来这里面的端倪，说明你是一个聪明伶俐的天才。不就是做了个算术题1+2=3么。</p>
+<p>如果你能看出来这里面的端倪，说明你是一个聪明伶俐的天才。不就是做了个算术题1+2&#x3D;3么。</p>
 <p>好了我们来看一下这个程序。里面的eax就是指代的寄存器。同理ebx也是一个寄存器。也就是这个CPU在做计算题的时候至少能够记住两个数字，实际上，它有更多寄存器，稍后再慢慢说。</p>
 <p>OK。既然找到一些感觉了，就继续胡乱地拍出一大堆程序来先玩个够吧：</p>
 <figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">global</span> main</span><br><span class="line"><span class="symbol"></span></span><br><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="number">2</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="number">3</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="number">4</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="number">5</span></span><br><span class="line">    <span class="keyword">ret</span></span><br></pre></td></tr></table></figure>
-
-
 
 <figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">global</span> main</span><br><span class="line"><span class="symbol"></span></span><br><span class="line"><span class="symbol">main:</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">eax</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">ebx</span>, <span class="number">2</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">ecx</span>, <span class="number">3</span></span><br><span class="line">    <span class="keyword">mov</span> <span class="built_in">edx</span>, <span class="number">4</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="built_in">ebx</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="built_in">ecx</span></span><br><span class="line">    <span class="keyword">add</span> <span class="built_in">eax</span>, <span class="built_in">edx</span></span><br><span class="line">    <span class="keyword">ret</span></span><br></pre></td></tr></table></figure>
 
@@ -417,10 +415,10 @@
 </div>
   <div class="links-of-author motion-element">
       <span class="links-of-author-item">
-        <a href="https://github.com/nonlee" title="GitHub &amp;rarr; https:&#x2F;&#x2F;github.com&#x2F;nonlee" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+        <a href="https://github.com/nonlee" title="GitHub &rarr; https:&#x2F;&#x2F;github.com&#x2F;nonlee" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
       </span>
       <span class="links-of-author-item">
-        <a href="mailto:ljxhb@126.com" title="E-Mail &amp;rarr; mailto:ljxhb@126.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+        <a href="mailto:ljxhb@126.com" title="E-Mail &rarr; mailto:ljxhb@126.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
       </span>
   </div>
 
