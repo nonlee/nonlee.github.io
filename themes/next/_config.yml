@@ -443,10 +443,10 @@ github_banner:
 # ---------------------------------------------------------------
 
 font:
-  enable: true
+  enable: false
 
   # Uri of fonts host, e.g. //fonts.googleapis.com (Default).
-  host: https://fonts.cat.net
+  host: https://fonts.loli.net
 
   # Font options:
   # `external: true` will load this font family from `host` above.
@@ -657,7 +657,7 @@ changyan:
 # You can get your appid and appkey from https://leancloud.cn
 # For more information: https://valine.js.org, https://github.com/xCss/Valine
 valine:
-  enable: enable # When enable is set to be true, leancloud_visitors is recommended to be closed for the re-initialization problem within different leancloud adk version
+  enable: false # When enable is set to be true, leancloud_visitors is recommended to be closed for the re-initialization problem within different leancloud adk version
   appid: RgmgHAK7sY3ybJcR72PlKQeN-gzGzoHsz # Your leancloud application appid
   appkey: Htw2u0CnKM3oCoBV706DIfM6 # Your leancloud application appkey
   notify: false # Mail notifier. See: https://github.com/xCss/Valine/wiki
@@ -798,10 +798,11 @@ busuanzi_count:
   post_views_icon: eye
 
 # Tencent analytics
-tencent_analytics: # <app_id>
-
+# tencent_analytics: # <app_id>
+#  enable: false 
 # Tencent MTA
-tencent_mta: 500701487
+# tencent_mta: 500701487
+# tencent_mta:
 
 
 # ---------------------------------------------------------------
@@ -931,7 +932,7 @@ motion:
 # Dependencies: https://github.com/theme-next/theme-next-pace
 # For more information: https://github.com/HubSpot/pace
 pace:
-  enable: true
+  enable: false
   # Themes list:
   # big-counter | bounce | barber-shop | center-atom | center-circle | center-radar | center-simple
   # corner-indicator | fill-left | flat-top | flash | loading-bar | mac-osx | material | minimal
@@ -961,7 +962,7 @@ canvas_nest:
 # Dependencies: https://github.com/theme-next/theme-next-canvas-ribbon
 # For more information: https://github.com/zproo/canvas-ribbon
 canvas_ribbon:
-  enable: true
+  enable: false
   size: 120 # The width of the ribbon
   alpha: 0.15 # The transparency of the ribbon
   zIndex: -1 # The display level of the ribbon
@@ -1057,7 +1058,7 @@ vendors:
   # Example:
   # valine: //cdn.jsdelivr.net/npm/valine@1/dist/Valine.min.js
   # valine: //cdnjs.cloudflare.com/ajax/libs/valine/1.3.4/Valine.min.js
-  valine:
+  # valine:
 
   # Gitalk
   # Example:
@@ -1100,8 +1101,11 @@ vendors:
   # pace: //cdnjs.cloudflare.com/ajax/libs/pace/1.0.2/pace.min.js
   # pace_css: //cdn.jsdelivr.net/npm/pace-js@1/themes/blue/pace-theme-minimal.css
   # pace_css: //cdnjs.cloudflare.com/ajax/libs/pace/1.0.2/themes/blue/pace-theme-minimal.min.css
-  pace:
-  pace_css:
+  # pace:
+  # pace_css:
+  # pace: //cdn.jsdelivr.net/npm/pace-js@1.2.4/pace.min.js
+  # pace_css: //cdn.jsdelivr.net/npm/pace-js@1.2.4/themes/blue/pace-theme-minimal.css
+
 
   # Internal version: 1.0.0
   # Example:
@@ -1124,8 +1128,8 @@ vendors:
   # Internal version: 1.0.0
   # Example:
   # canvas_ribbon: //cdn.jsdelivr.net/gh/theme-next/theme-next-canvas-ribbon@1/canvas-ribbon.js
-  canvas_ribbon:
-
+  # canvas_ribbon:
+  # canvas_ribbon: //cdn.jsdelivr.net/gh/theme-next/theme-next-canvas-ribbon@1/canvas-ribbon.js
 # Assets
 css: css
 js: js

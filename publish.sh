@@ -1,7 +1,7 @@
 
 time=$(date "+%Y-%m-%d %H:%M:%S")
-cd ~/nonlee/nonlee.github.io 
-git add ~/nonlee/nonlee.github.io/ 
+cd  /home/ljx/nonlee/nonlee.github.io 
+git add /home/ljx/nonlee/nonlee.github.io 
 git commit -m "${time}"
 git push origin hexo
 hexo clean 
