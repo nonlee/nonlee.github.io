@@ -605,16 +605,16 @@ quicklink:
 # ---------------------------------------------------------------
 
 # Multiple Comment System Support
-comments:
+# comments:
   # Available values: tabs | buttons
-  style: tabs
+  # style: tabs
   # Choose a comment system to be displayed by default.
   # Available values: changyan | disqus | disqusjs | facebook_comments_plugin | gitalk | livere | valine | vkontakte
-  active:
+  # active:
   # Setting `true` means remembering the comment system selected by the visitor.
-  storage: true
+  # storage: true
   # Modify texts or order for any navs, here are some examples.
-  nav:
+  # nav:
     #disqus:
     #  text: Load Disqus
     #  order: -1
@@ -622,6 +622,18 @@ comments:
     #  text: <i class="fa fa-facebook-official" aria-hidden="true"></i> facebook
     #gitalk:
     #  order: -2
+
+# 评论系统
+comments:
+  enable: true
+  active: twikoo  # 这里必须写 twikoo
+
+# Twikoo
+twikoo:
+  enable: true
+  serverURLs: https://nonlee.com/twikoo
+  visitor: true
+
 
 # Disqus
 disqus:
@@ -672,13 +684,6 @@ valine:
   recordIP: true # Whether to record the commenter IP
   serverURLs: # When the custom domain name is enabled, fill it in here (it will be detected automatically by default, no need to fill in)
   #post_meta_order: 0
-
-# Twikoo 评论系统配置
-twikoo:
-  enable: true
-  visitor: true # 是否开启文章访问量统计
-  envId: https://nonlee.com/twikoo/ # 填入您部署的 Twikoo 服务地址（支持带路径后缀）
-  # region: ap-shanghai # 仅在腾讯云环境下需要填写，自托管无需填写
 
 
 # LiveRe comments system
