@@ -673,6 +673,14 @@ valine:
   serverURLs: # When the custom domain name is enabled, fill it in here (it will be detected automatically by default, no need to fill in)
   #post_meta_order: 0
 
+# Twikoo 评论系统配置
+twikoo:
+  enable: true
+  visitor: true # 是否开启文章访问量统计
+  envId: https://nonlee.com/twikoo/ # 填入您部署的 Twikoo 服务地址（支持带路径后缀）
+  # region: ap-shanghai # 仅在腾讯云环境下需要填写，自托管无需填写
+
+
 # LiveRe comments system
 # You can get your uid from https://livere.com/insight/myCode (General web site)
 livere_uid: # <your_uid>
