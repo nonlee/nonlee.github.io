@@ -2,9 +2,16 @@
 title: ORACLE中的递归查询
 date: 2026-06-09 17:41:06
 tags: [sql，递归查询]
-top: 1
+top: 11
 categories: sql
 ---
+
+在关系型数据库中，处理具有层级或树状结构的数据（如组织架构、物料清单、分类目录等）是一项常见需求。Oracle 数据库提供了强大的递归查询机制，允许开发者在单条 SQL 语句中遍历这种层次关系。
+
+目前，Oracle 支持两种主流的递归查询方式：
+- **`CONNECT BY` 层次查询**：Oracle 专有的传统语法，语法简洁，在特定场景下性能优异。
+- **`WITH RECURSIVE` 递归公用表表达式 (CTE)**：符合 ANSI SQL 标准的现代语法，自 Oracle 11g Release 2 起引入，具有更好的可移植性和灵活性。
+<!-- more -->
 
 在oracle数据库中，有如下表：
 
